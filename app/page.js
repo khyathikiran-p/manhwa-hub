@@ -1,66 +1,100 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import Link from "next/link";
+import { fetchTrendingManhwa, fetchManhwaList } from "@/lib/anilist";
+import HeroSection from "@/components/HeroSection";
+import ManhwaGrid from "@/components/ManhwaGrid";
+import styles from "./home.module.css";
 
-export default function Home() {
+const GENRE_QUICK_NAV = [
+  { label: "Action", emoji: "⚔️", genre: "Action" },
+  { label: "Fantasy", emoji: "🧙", genre: "Fantasy" },
+  { label: "Romance", emoji: "💕", genre: "Romance" },
+  { label: "Sci-Fi", emoji: "🚀", genre: "Sci-Fi" },
+  { label: "Slice of Life", emoji: "🌸", genre: "Slice of Life" },
+  { label: "Horror", emoji: "👻", genre: "Horror" },
+  { label: "Thriller", emoji: "🔪", genre: "Thriller" },
+  { label: "Comedy", emoji: "😂", genre: "Comedy" },
+  { label: "Drama", emoji: "🎭", genre: "Drama" },
+  { label: "Mystery", emoji: "🔍", genre: "Mystery" },
+  { label: "Adventure", emoji: "🗺️", genre: "Adventure" },
+  { label: "Supernatural", emoji: "👁️", genre: "Supernatural" },
+];
+
+export default async function HomePage() {
+  let trending = [];
+  let popular = [];
+
+  try {
+    trending = await fetchTrendingManhwa();
+  } catch (e) {
+    console.error("Failed to fetch trending:", e);
+  }
+
+  try {
+    const result = await fetchManhwaList({
+      perPage: 10,
+      sort: "POPULARITY_DESC",
+    });
+    popular = result.media;
+  } catch (e) {
+    console.error("Failed to fetch popular:", e);
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className={styles.homePage}>
+      {/* Hero */}
+      <HeroSection trending={trending} />
+
+      {/* Stats Bar */}
+      <div className={styles.statsBar}>
+        <div className={styles.stat}>
+          <div className={styles.statValue}>10K+</div>
+          <div className={styles.statLabel}>Manhwa Titles</div>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className={styles.stat}>
+          <div className={styles.statValue}>50+</div>
+          <div className={styles.statLabel}>Genres & Tags</div>
         </div>
-      </main>
+        <div className={styles.stat}>
+          <div className={styles.statValue}>Live</div>
+          <div className={styles.statLabel}>API Data</div>
+        </div>
+        <div className={styles.stat}>
+          <div className={styles.statValue}>Free</div>
+          <div className={styles.statLabel}>Forever</div>
+        </div>
+      </div>
+
+      {/* Popular This Season */}
+      <section className={styles.featured}>
+        <div className={styles.featuredHeader}>
+          <h2 className={styles.featuredTitle}>
+            🔥 <span>Most Popular</span> Manhwa
+          </h2>
+          <Link href="/browse" className={styles.viewAll}>
+            View All →
+          </Link>
+        </div>
+        <ManhwaGrid manhwas={popular} />
+      </section>
+
+      {/* Genre Quick Nav */}
+      <section className={styles.genreNav}>
+        <h2 className={styles.genreNavTitle}>
+          🎯 Browse by <span>Genre</span>
+        </h2>
+        <div className={styles.genreGrid}>
+          {GENRE_QUICK_NAV.map(({ label, emoji, genre }) => (
+            <Link
+              key={genre}
+              href={`/browse?genres=${encodeURIComponent(genre)}`}
+              className={styles.genreCard}
+            >
+              <span className={styles.genreEmoji}>{emoji}</span>
+              {label}
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
