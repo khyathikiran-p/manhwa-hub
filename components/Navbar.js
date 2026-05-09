@@ -97,49 +97,19 @@ export default function Navbar() {
             data-cursor="link"
           >
             <span className={styles.logoMark} aria-hidden="true">
-              {/* Manhwa Weebs MW circle mark — vertical orange→red gradient,
-                  broken outer ring, stylized MW interior. */}
-              <svg viewBox="0 0 100 100" width="38" height="38">
-                <defs>
-                  <linearGradient id="mw-mark" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ff9f1a" />
-                    <stop offset="55%" stopColor="#ff5a14" />
-                    <stop offset="100%" stopColor="#d72e0c" />
-                  </linearGradient>
-                </defs>
-
-                {/* Broken outer ring — gap at the top + tail flicks */}
-                <path
-                  d="M 50 6
-                     A 44 44 0 1 1 30 11
-                     M 50 6
-                     A 44 44 0 0 1 92 60
-                     M 50 6
-                     L 48 16"
-                  fill="none"
-                  stroke="url(#mw-mark)"
-                  strokeWidth="9"
-                  strokeLinecap="square"
-                />
-
-                {/* Stylized MW letterform — angular, connected uprights */}
-                <path
-                  d="M 26 76
-                     L 26 32
-                     L 38 56
-                     L 50 32
-                     L 50 76
-                     M 50 32
-                     L 62 56
-                     L 74 32
-                     L 74 76"
-                  fill="none"
-                  stroke="url(#mw-mark)"
-                  strokeWidth="8"
-                  strokeLinejoin="miter"
-                  strokeLinecap="square"
-                />
-              </svg>
+              <img
+                src="/logo-mw.jpeg"
+                alt=""
+                width="38"
+                height="38"
+                style={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
             </span>
             <span className={`${styles.logoText} flameLogo`}>
               MANHWA<span className={styles.logoSpace}>&nbsp;</span>WEEBS
