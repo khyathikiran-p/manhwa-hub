@@ -16,7 +16,11 @@
  *   visit (e.g. after a deploy with breaking client changes).
  */
 
-const CACHE_VERSION = "mw-v1";
+// Bumping this string invalidates every previously-cached page on the
+// next visit. Bump after any deploy users should not see the cached
+// version of (e.g. mobile flicker fixes — a phone holding v1 in cache
+// would otherwise show the old broken UI for hours).
+const CACHE_VERSION = "mw-v2";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
