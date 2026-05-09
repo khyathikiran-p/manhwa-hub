@@ -41,7 +41,7 @@ export default function ManhwaCard({ manhwa, index = 0 }) {
     manhwa.title?.english || manhwa.title?.romaji || "Unknown Title";
   const coverUrl =
     manhwa.coverImage?.extraLarge || manhwa.coverImage?.large || "";
-  const coverColor = manhwa.coverImage?.color || "#7c5cfc";
+  const coverColor = manhwa.coverImage?.color || "#f59e0b";
   const score = manhwa.averageScore;
   const statusInfo = getStatusLabel(manhwa.status);
   const synopsis = stripHtml(manhwa.description);

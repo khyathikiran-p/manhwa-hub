@@ -24,6 +24,7 @@ function BrowseContent() {
   const initialSort = searchParams.get("sort") || "POPULARITY_DESC";
   const initialSearch = searchParams.get("search") || "";
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const initialCountry = searchParams.get("country") || "KR";
 
   const [genres, setGenres] = useState(initialGenres);
   const [tags, setTags] = useState(initialTags);
@@ -31,6 +32,7 @@ function BrowseContent() {
   const [sort, setSort] = useState(initialSort);
   const [search, setSearch] = useState(initialSearch);
   const [page, setPage] = useState(initialPage);
+  const country = initialCountry;
 
   const [manhwas, setManhwas] = useState([]);
   const [pageInfo, setPageInfo] = useState(null);
@@ -56,11 +58,12 @@ function BrowseContent() {
       if (so !== "POPULARITY_DESC") params.set("sort", so);
       if (se) params.set("search", se);
       if (p > 1) params.set("page", p.toString());
+      if (country && country !== "KR") params.set("country", country);
 
       const qs = params.toString();
       router.replace(`/browse${qs ? `?${qs}` : ""}`, { scroll: false });
     },
-    [genres, tags, status, sort, debouncedSearch, page, router]
+    [genres, tags, status, sort, debouncedSearch, page, country, router]
   );
 
   // Fetch data
@@ -76,6 +79,7 @@ function BrowseContent() {
         status,
         sort,
         search: debouncedSearch,
+        country,
       });
       setManhwas(result.media);
       setPageInfo(result.pageInfo);
@@ -86,7 +90,7 @@ function BrowseContent() {
     } finally {
       setLoading(false);
     }
-  }, [page, genres, tags, status, sort, debouncedSearch]);
+  }, [page, genres, tags, status, sort, debouncedSearch, country]);
 
   useEffect(() => {
     fetchData();
@@ -135,10 +139,17 @@ function BrowseContent() {
     <div className={styles.browsePage}>
       <div className={styles.browseHeader}>
         <h1 className={styles.browseTitle}>
-          Browse <span>Manhwa</span>
+          Browse{" "}
+          <span>
+            {country === "JP" ? "Manga" : country === "CN" ? "Manhua" : "Manhwa"}
+          </span>
         </h1>
         <p className={styles.browseSubtitle}>
-          Discover thousands of Korean webtoons — filter by genre, tropes, and more
+          {country === "JP"
+            ? "Discover thousands of Japanese manga titles."
+            : country === "CN"
+              ? "Discover thousands of Chinese manhua titles."
+              : "Discover thousands of Korean webtoons — filter by genre, tropes, and more."}
         </p>
       </div>
 

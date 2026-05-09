@@ -1,0 +1,56 @@
+/* Hide the native cursor only on devices that benefit from a custom one.
+   We can't put `cursor: none` on body unconditionally — touch users would
+   see no cursor + no tap visual feedback. */
+@media (pointer: fine) {
+  :global(html),
+  :global(body) {
+    cursor: none;
+  }
+  :global(a),
+  :global(button),
+  :global(input),
+  :global(textarea),
+  :global(select),
+  :global([role="button"]) {
+    cursor: none;
+  }
+}
+
+.ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9998;
+  pointer-events: none;
+  background: white;
+  mix-blend-mode: difference;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: black;
+  will-change: transform, width, height;
+}
+
+.dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: white;
+  mix-blend-mode: difference;
+  z-index: 9999;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.label {
+  white-space: nowrap;
+  user-select: none;
+  pointer-events: none;
+}

@@ -38,7 +38,7 @@ function FilterSection({ title, children, defaultOpen = true }) {
 }
 
 function FilterOption({ label, checked, onChange, type = "checkbox" }) {
-  const { ripplesJSX, trigger } = useRipple("rgba(124, 92, 252, 0.25)");
+  const { ripplesJSX, trigger } = useRipple("rgba(245, 158, 11, 0.3)");
 
   return (
     <motion.label

@@ -10,7 +10,7 @@ const CONFIG = {
   mouseForce: 0.02,
   baseOpacity: 0.35,
   lineOpacity: 0.08,
-  colors: ["#7c5cfc", "#a78bfa", "#c084fc", "#6366f1", "#818cf8"],
+  colors: ["#ff8a1f", "#ffb53d", "#ffd166", "#f59e0b", "#fb923c"],
   minSize: 1.2,
   maxSize: 2.8,
 };
@@ -174,7 +174,7 @@ export default function ParticleBackground() {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(mx, my);
-            ctx.strokeStyle = "#a78bfa";
+            ctx.strokeStyle = "#ffb53d";
             ctx.globalAlpha = opacity * 0.15;
             ctx.lineWidth = 0.8;
             ctx.stroke();

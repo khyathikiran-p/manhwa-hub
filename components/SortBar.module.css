@@ -37,9 +37,9 @@
   padding: 4px 10px;
   font-size: 0.72rem;
   font-weight: 600;
-  background: rgba(124, 92, 252, 0.12);
+  background: rgba(245, 158, 11, 0.12);
   color: var(--accent-secondary);
-  border: 1px solid rgba(124, 92, 252, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.15);
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-fast);

@@ -42,7 +42,7 @@
 }
 
 .viewAll:hover {
-  background: rgba(124, 92, 252, 0.1);
+  background: rgba(245, 158, 11, 0.1);
 }
 
 /* Genre Quick Nav */
@@ -90,9 +90,9 @@
 .genreCard:hover {
   border-color: var(--accent-primary);
   color: var(--accent-secondary);
-  background: rgba(124, 92, 252, 0.05);
+  background: rgba(245, 158, 11, 0.05);
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(124, 92, 252, 0.1);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.1);
 }
 
 .genreEmoji {
