@@ -178,7 +178,12 @@
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 1s ease-in-out;
+  /* Longer cross-fade with an expo curve so the cover dissolve doesn't
+     read as a hard cut on mobile. The curve front-loads the fade so the
+     incoming cover is mostly visible by the 60% mark — pairs nicely with
+     the spring-driven content slide. */
+  transition: opacity 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity;
 }
 
 .slide.active {
@@ -243,6 +248,14 @@
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 16px;
+  /* Horizontal swipe → change slide; vertical → page scroll passes through */
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+}
+
+.slideContent:active {
+  cursor: grabbing;
 }
 
 .empty {

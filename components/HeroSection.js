@@ -73,24 +73,56 @@ function RatingRing({ score = 0, size = 100 }) {
   );
 }
 
-// Per-element entrance — uses the same variant name keys as the parent
-// content variants so inheritance propagates cleanly.
-//
-// We deliberately avoid `filter: blur(...)` here. Even though it looks
-// great, animating filter forces a paint pass each frame and Lighthouse
-// flagged this as a non-composited animation on the hero. Translation +
-// opacity are GPU-composited and produce essentially the same readable
-// "rise into view" feel.
+// Per-element entrance — variant keys match the parent slideContentVariants
+// (enter/center/exit) so framer's variant-name propagation reaches children.
+// Composited-only (no filter) — Lighthouse flagged blur as non-composited.
 const slideVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -16 },
+  enter: { opacity: 0, y: 16 },
+  center: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -10 },
 };
 
+// Direction-aware slide entrance for the whole content block. The current
+// `direction` (1 forward / -1 backward) controls which side new content
+// flies in from — feels natural with the swipe gesture and the manual
+// prev/next buttons.
+const slideContentVariants = {
+  enter: (dir) => ({
+    opacity: 0,
+    x: dir > 0 ? 64 : -64,
+  }),
+  center: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      x: { type: "spring", stiffness: 320, damping: 32, mass: 0.7 },
+      opacity: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+    },
+  },
+  exit: (dir) => ({
+    opacity: 0,
+    x: dir > 0 ? -48 : 48,
+    transition: {
+      x: { type: "spring", stiffness: 280, damping: 30 },
+      opacity: { duration: 0.35, ease: "easeOut" },
+    },
+  }),
+};
+
+// How far (in px) the user has to drag before we commit to a slide change.
+const SWIPE_THRESHOLD = 70;
+const SWIPE_VELOCITY_THRESHOLD = 380;
+
 export default function HeroSection({ trending = [] }) {
-  const [current, setCurrent] = useState(0);
+  const [[current, direction], setCurrentDir] = useState([0, 1]);
   const [expanded, setExpanded] = useState(false);
+  const [interacting, setInteracting] = useState(false);
   const heroRef = useRef(null);
+
+  // Helpers that remember direction so the entrance variant can pick the
+  // right side to slide in from. Direction 1 = forward, -1 = backward.
+  const goTo = (next, dir = next > current ? 1 : -1) =>
+    setCurrentDir([(next + trending.length) % trending.length, dir]);
 
   const item = trending[current];
   const cover = item?.coverImage?.extraLarge || item?.coverImage?.large || "";
@@ -136,16 +168,17 @@ export default function HeroSection({ trending = [] }) {
   }, [item, palette, vector]);
 
   // Auto-rotation cadence reacts to intensity — action keeps the rhythm tight
-  // (5.5s), calm content lingers (9s).
+  // (5.5s), calm content lingers (9s). Pauses while the user is touching or
+  // dragging the hero so we never yank the slide out from under them.
   useEffect(() => {
     if (trending.length === 0) return;
-    if (expanded) return;
+    if (expanded || interacting) return;
     const cadence = 9000 - vector.intensity * 3500;
     const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % trending.length);
+      setCurrentDir(([prev]) => [(prev + 1) % trending.length, 1]);
     }, cadence);
     return () => clearInterval(timer);
-  }, [trending.length, expanded, vector.intensity]);
+  }, [trending.length, expanded, interacting, vector.intensity]);
 
   // Re-derive variants when the content vector changes — memoized object stays
   // referentially stable across renders that don't change the focused item.
@@ -172,8 +205,8 @@ export default function HeroSection({ trending = [] }) {
     );
   }
 
-  const goNext = () => setCurrent((c) => (c + 1) % trending.length);
-  const goPrev = () => setCurrent((c) => (c - 1 + trending.length) % trending.length);
+  const goNext = () => goTo(current + 1, 1);
+  const goPrev = () => goTo(current - 1, -1);
 
   return (
     <section className={styles.hero} ref={heroRef}>
@@ -248,14 +281,40 @@ export default function HeroSection({ trending = [] }) {
 
         {/* Content */}
         <div className={styles.content}>
-          <AnimatePresence mode="wait">
+          {/* AnimatePresence without `mode="wait"` lets the outgoing slide
+              fade in parallel with the incoming one — produces a true
+              cross-fade instead of the "exit then enter" lag that mobile
+              users perceived as jank.
+
+              `custom={direction}` feeds the variant fns the swipe direction
+              so new content slides in from the correct side. */}
+          <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={current}
               className={styles.slideContent}
-              initial="hidden"
-              animate="visible"
+              custom={direction}
+              variants={slideContentVariants}
+              initial="enter"
+              animate="center"
               exit="exit"
-              variants={contentVariants}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.18}
+              dragMomentum={false}
+              onDragStart={() => setInteracting(true)}
+              onDragEnd={(_, info) => {
+                const dx = info.offset.x;
+                const vx = info.velocity.x;
+                const swipedLeft =
+                  dx < -SWIPE_THRESHOLD || vx < -SWIPE_VELOCITY_THRESHOLD;
+                const swipedRight =
+                  dx > SWIPE_THRESHOLD || vx > SWIPE_VELOCITY_THRESHOLD;
+                if (swipedLeft) goTo(current + 1, 1);
+                else if (swipedRight) goTo(current - 1, -1);
+                // Hold off auto-rotate for a moment after a deliberate swipe
+                setTimeout(() => setInteracting(false), 1500);
+              }}
+              style={{ touchAction: "pan-y" }}
             >
               {/* Top: Title block */}
               <div className={styles.titleBlock}>
@@ -384,7 +443,7 @@ export default function HeroSection({ trending = [] }) {
               <button
                 key={i}
                 className={`${styles.dot} ${i === current ? styles.dotActive : ""}`}
-                onClick={() => setCurrent(i)}
+                onClick={() => goTo(i)}
                 aria-label={`Go to slide ${i + 1}`}
               />
             ))}
