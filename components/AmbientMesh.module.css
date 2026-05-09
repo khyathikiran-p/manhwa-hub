@@ -81,3 +81,24 @@
 @media (prefers-reduced-motion: reduce) {
   .blob, .grain { animation: none; }
 }
+
+/* Mobile freeze: every keyframe in this module runs forever and updates
+   the compositor on each frame. On real phones the cumulative load is
+   the dominant cause of perceived flicker. We keep the static gradient
+   (visual identity) but pause all infinite animations on touch devices. */
+@media (pointer: coarse), (max-width: 600px) {
+  .blob, .grain {
+    animation: none !important;
+  }
+  /* The grain layer is also expensive to composite at full size — shrink it. */
+  .grain {
+    inset: 0;
+    background-size: 200px 200px;
+    opacity: 0.04;
+  }
+  /* Hide the SVG turbulence layer entirely on mobile — its baseFrequency
+     animates via JS rAF and triggers a paint each frame. */
+  .noise {
+    display: none;
+  }
+}

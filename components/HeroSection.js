@@ -139,10 +139,25 @@ export default function HeroSection({ trending = [] }) {
   const cover = item?.coverImage?.extraLarge || item?.coverImage?.large || "";
 
   // ─── Subtle background-only parallax ─────────────────────────────
-  // The earlier "fade title on scroll" approach made the hero look broken —
-  // users started scrolling and the headline immediately disappeared.
-  // We keep just a slow background drift now: it adds depth without ever
-  // hiding the foreground content.
+  // Desktop only — on touch devices the spring continuously updates as
+  // the user scrolls, which on iOS Safari causes visible jitter on top
+  // of an already-busy compositor. We pin the bg transforms at their
+  // resting values for mobile so the cover is dead-still.
+  const [enableParallax, setEnableParallax] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const fine = window.matchMedia("(pointer: fine)");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setEnableParallax(fine.matches && !reduced.matches);
+    update();
+    fine.addEventListener?.("change", update);
+    reduced.addEventListener?.("change", update);
+    return () => {
+      fine.removeEventListener?.("change", update);
+      reduced.removeEventListener?.("change", update);
+    };
+  }, []);
+
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -152,8 +167,12 @@ export default function HeroSection({ trending = [] }) {
     damping: 22,
     mass: 0.9,
   });
-  const bgY = useTransform(scrollSmooth, [0, 1], [0, 90]);
-  const bgScale = useTransform(scrollSmooth, [0, 1], [1, 1.05]);
+  const bgYTransform = useTransform(scrollSmooth, [0, 1], [0, 90]);
+  const bgScaleTransform = useTransform(scrollSmooth, [0, 1], [1, 1.05]);
+  // Use the live MotionValues on desktop, plain numbers on mobile so
+  // Framer doesn't subscribe to scroll updates at all.
+  const bgY = enableParallax ? bgYTransform : 0;
+  const bgScale = enableParallax ? bgScaleTransform : 1;
 
   // Content-aware: extract palette from the active cover, derive vector from
   // genres/tags. Vector flows into auto-rotate cadence and Framer variants.
@@ -178,13 +197,20 @@ export default function HeroSection({ trending = [] }) {
     );
   }, [item, palette, vector]);
 
-  // Auto-rotation cadence reacts to intensity — action keeps the rhythm tight
-  // (5.5s), calm content lingers (9s). Pauses while the user is touching or
-  // dragging the hero so we never yank the slide out from under them.
+  // Auto-rotation cadence reacts to intensity — action keeps the rhythm
+  // tight (5.5s), calm content lingers (9s). On touch devices we slow it
+  // down further (12-15s) since each cross-fade is a noticeable
+  // composite event and frequent rotation reads as flicker.
+  // Pauses while the user is touching/dragging the hero.
   useEffect(() => {
     if (trending.length === 0) return;
     if (expanded || interacting) return;
-    const cadence = 9000 - vector.intensity * 3500;
+    const isTouchDevice =
+      typeof window !== "undefined" &&
+      window.matchMedia("(pointer: coarse)").matches;
+    const cadence = isTouchDevice
+      ? 15000 - vector.intensity * 3000 // 12-15s on phones
+      : 9000 - vector.intensity * 3500; // 5.5-9s on desktop
     const timer = setInterval(() => {
       setCurrentDir(([prev]) => [(prev + 1) % trending.length, 1]);
     }, cadence);

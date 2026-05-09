@@ -50,3 +50,14 @@
     animation: none;
   }
 }
+
+/* Mobile freeze: the breathing animation continuously scales + opacity-
+   animates 3 large blurred elements. On phones this is one of the
+   bigger contributors to compositor load during touch scroll. Static
+   tinted glow is plenty atmospheric. */
+@media (pointer: coarse), (max-width: 600px) {
+  .orb {
+    animation: none !important;
+    opacity: 0.55 !important;
+  }
+}

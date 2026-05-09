@@ -34,6 +34,17 @@ export default function AmbientMesh() {
   useEffect(() => {
     const node = turbRef.current;
     if (!node) return;
+
+    // Skip the rAF turbulence morph entirely on touch / reduced-motion
+    // devices. On phones it's the difference between a static, calm
+    // backdrop and a permanently re-painting one — the latter shows up
+    // as flicker during scroll.
+    if (typeof window !== "undefined") {
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (coarse || reduced) return;
+    }
+
     let raf;
     const start = performance.now();
     const tick = (t) => {

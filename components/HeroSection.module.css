@@ -151,6 +151,15 @@
   will-change: transform;
 }
 
+/* Mobile freeze — even though frameShimmer is composited, infinite-loop
+   transform animations stack with everything else. Pause it on touch. */
+@media (pointer: coarse), (max-width: 600px) {
+  .frameShimmer::after {
+    animation: none;
+    display: none;
+  }
+}
+
 @keyframes frameShimmer {
   0% {
     transform: translate3d(-180%, 0, 0);
