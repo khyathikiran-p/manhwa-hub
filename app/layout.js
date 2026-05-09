@@ -28,6 +28,26 @@ export const metadata = {
     description: "Your ultimate hub for discovering manhwa, manga, and manhua.",
     type: "website",
   },
+  appleWebApp: {
+    statusBarStyle: "black-translucent",
+  },
+};
+
+// Next.js 16: viewport + themeColor are exported separately from metadata.
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // `cover` lets the page extend under the iOS notch / home indicator —
+  // without this iOS paints solid black bands above/below that flash
+  // during page transitions.
+  viewportFit: "cover",
+  // Allow up to 5× zoom for accessibility while preventing accidental
+  // pinch-zoom mid-swipe.
+  maximumScale: 5,
+  // Color the iOS / Android URL bar to match the page bg — eliminates
+  // the brief white flash mobile users saw during scroll-into-overflow
+  // bounces.
+  themeColor: "#0a0805",
 };
 
 export default function RootLayout({ children }) {

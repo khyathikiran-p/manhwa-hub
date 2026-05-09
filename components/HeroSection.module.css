@@ -200,6 +200,15 @@
   animation: slowZoom 14s ease-out infinite alternate;
 }
 
+/* On mobile, cross-fading two slides while both are scaling 1→1.08 every
+   14s sends the compositor into permanent repaint mode (visible flicker).
+   Static cover on phones — the slide change itself is plenty of motion. */
+@media (pointer: coarse), (max-width: 600px) {
+  .slideImage {
+    animation: none;
+  }
+}
+
 @keyframes slowZoom {
   0% {
     transform: scale(1);
@@ -344,10 +353,12 @@
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.readNow:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(255, 178, 64, 0.55),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+@media (hover: hover) {
+  .readNow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 178, 64, 0.55),
+      inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+  }
 }
 
 /* ─── NEXT / PREV buttons (positioning lives in `.hero` block above) ── */
@@ -428,10 +439,12 @@
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.coverCard:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55),
-    0 0 24px rgba(255, 138, 31, 0.55);
+@media (hover: hover) {
+  .coverCard:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55),
+      0 0 24px rgba(255, 138, 31, 0.55);
+  }
 }
 
 .coverCard img {
@@ -503,12 +516,14 @@
   text-decoration: none;
 }
 
-.genrePill:hover {
-  background: var(--accent-gradient);
-  color: #1a0d04;
-  border-color: transparent;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(255, 138, 31, 0.45);
+@media (hover: hover) {
+  .genrePill:hover {
+    background: var(--accent-gradient);
+    color: #1a0d04;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 138, 31, 0.45);
+  }
 }
 
 .expandLink {

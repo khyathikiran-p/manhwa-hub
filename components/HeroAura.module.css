@@ -8,6 +8,17 @@
   filter: blur(0.4px);
 }
 
+/* On mobile we have the cover image + bg gradient + AmbientMesh + AmbientBackdrop
+   + ParticleBackground all stacked. Adding the wisp canvas on top makes the
+   compositor flush 5 layers per frame, which on iOS Safari produces visible
+   flickering during touch-scroll. Skip it on coarse-pointer devices — the
+   ambient mesh + dynamic theme already give the hero plenty of life. */
+@media (pointer: coarse), (max-width: 600px) {
+  .wrap {
+    display: none;
+  }
+}
+
 .canvas {
   position: absolute;
   inset: 0;

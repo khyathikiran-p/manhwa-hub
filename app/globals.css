@@ -69,12 +69,34 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  /* Kills the flashing blue tap highlight that mobile browsers paint on
+     every <a>/<button>/[role=button] tap. On a dark theme this reads as
+     a flicker between every interaction — bigger UX regression than the
+     accessibility win. We replace it with the active-state styles below. */
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* `text-size-adjust: 100%` — Safari iOS auto-bumps text up to ~17px in
+     landscape; that briefly reflows everything on rotation. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* `touch-action: manipulation` removes the 300 ms double-tap-to-zoom delay
+   on tappable controls AND prevents the compositor "tap zoom" pass that
+   produces a brief whitewash flash on iOS. Apply only to actual controls
+   so vertical scroll on the rest of the page stays native. */
+a,
+button,
+input,
+select,
+textarea,
+[role="button"] {
+  touch-action: manipulation;
 }
 
 body {
@@ -210,8 +232,16 @@ select {
   transition: all var(--transition-fast);
 }
 
-.chip:hover {
-  background: rgba(245, 158, 11, 0.22);
+/* `@media (hover: hover)` — only apply hover styles on devices with a true
+   hover capability (mouse / trackpad). On phones, after a tap the :hover
+   state otherwise sticks until you tap somewhere else, causing a perceived
+   "stuck flash" that reads as flicker.
+
+   We adopt this convention site-wide for any noticeable hover effect. */
+@media (hover: hover) {
+  .chip:hover {
+    background: rgba(245, 158, 11, 0.22);
+  }
 }
 
 /* ─── Score Badge ────────────────────────────────────────────── */
