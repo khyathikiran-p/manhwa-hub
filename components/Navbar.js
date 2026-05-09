@@ -97,17 +97,47 @@ export default function Navbar() {
             data-cursor="link"
           >
             <span className={styles.logoMark} aria-hidden="true">
-              <svg viewBox="0 0 32 32" width="34" height="34">
+              {/* Manhwa Weebs MW circle mark — vertical orange→red gradient,
+                  broken outer ring, stylized MW interior. */}
+              <svg viewBox="0 0 100 100" width="38" height="38">
                 <defs>
-                  <linearGradient id="mw-flame" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#ffe066" />
-                    <stop offset="50%" stopColor="#ff8a1f" />
-                    <stop offset="100%" stopColor="#c8390c" />
+                  <linearGradient id="mw-mark" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ff9f1a" />
+                    <stop offset="55%" stopColor="#ff5a14" />
+                    <stop offset="100%" stopColor="#d72e0c" />
                   </linearGradient>
                 </defs>
+
+                {/* Broken outer ring — gap at the top + tail flicks */}
                 <path
-                  fill="url(#mw-flame)"
-                  d="M16 2c2 5-3 6-1 11 1.4 3.5 6 4 6 9a9 9 0 1 1-15-6c1-1 2-1 2.5.3.6 1.5-1 3 .2 4.5 1.5 1.6 4-.2 4-2 0-3-3-5-3-9 0-3 3-7 6.3-7.8z"
+                  d="M 50 6
+                     A 44 44 0 1 1 30 11
+                     M 50 6
+                     A 44 44 0 0 1 92 60
+                     M 50 6
+                     L 48 16"
+                  fill="none"
+                  stroke="url(#mw-mark)"
+                  strokeWidth="9"
+                  strokeLinecap="square"
+                />
+
+                {/* Stylized MW letterform — angular, connected uprights */}
+                <path
+                  d="M 26 76
+                     L 26 32
+                     L 38 56
+                     L 50 32
+                     L 50 76
+                     M 50 32
+                     L 62 56
+                     L 74 32
+                     L 74 76"
+                  fill="none"
+                  stroke="url(#mw-mark)"
+                  strokeWidth="8"
+                  strokeLinejoin="miter"
+                  strokeLinecap="square"
                 />
               </svg>
             </span>
