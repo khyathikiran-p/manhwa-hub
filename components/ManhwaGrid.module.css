@@ -14,7 +14,10 @@
 @media (max-width: 640px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    /* 14 → 20 px gap. Earlier value put adjacent cards too close; users
+       reported accidental taps on the wrong card. 20 px gives daylight
+       between thumbs without sacrificing the "two-up" density. */
+    gap: 20px 16px;
   }
 }
 

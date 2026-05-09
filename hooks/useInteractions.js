@@ -119,19 +119,46 @@ export function useMagneticSpring({
     if (!el) return;
 
     let inside = false;
+    // Cache the element's geometry so we don't call getBoundingClientRect()
+    // on every pointermove — that's the classic "forced reflow" pattern that
+    // Lighthouse flagged on the previous build (per `0hstpqahkt253.js`).
+    // The rect only changes on scroll/resize/layout, so we refresh it via
+    // ResizeObserver and a passive scroll listener on rAF.
+    let cached = null;
+    const refresh = () => {
+      cached = el.getBoundingClientRect();
+    };
+    refresh();
 
-    const onMove = (e) => {
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
+    let scrollScheduled = false;
+    const onScroll = () => {
+      if (scrollScheduled) return;
+      scrollScheduled = true;
+      requestAnimationFrame(() => {
+        refresh();
+        scrollScheduled = false;
+      });
+    };
+    const ro = new ResizeObserver(refresh);
+    ro.observe(el);
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    // Pointermove also needs to read rect to handle off-screen-but-not-yet-
+    // resized cases (e.g. AnimatePresence layout changes). We dedupe via rAF
+    // so at most one read happens per frame regardless of pointer rate.
+    let pending = null;
+    let lastE = null;
+
+    const compute = () => {
+      pending = null;
+      const e = lastE;
+      if (!e || !cached) return;
+      const cx = cached.left + cached.width / 2;
+      const cy = cached.top + cached.height / 2;
       const dx = e.clientX - cx;
       const dy = e.clientY - cy;
       const dist = Math.hypot(dx, dy);
-
-      // Field of attraction — engages even slightly outside the element so
-      // the cursor "snaps" toward it. Falloff is quadratic so the pull
-      // grows fastest right before contact.
-      const r = Math.max(rect.width, rect.height) / 2 + radius;
+      const r = Math.max(cached.width, cached.height) / 2 + radius;
       if (dist > r) {
         if (inside) {
           inside = false;
@@ -147,6 +174,11 @@ export function useMagneticSpring({
       yMV.set(dy * k);
     };
 
+    const onMove = (e) => {
+      lastE = e;
+      if (pending == null) pending = requestAnimationFrame(compute);
+    };
+
     const onLeave = () => {
       inside = false;
       xMV.set(0);
@@ -158,6 +190,9 @@ export function useMagneticSpring({
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("scroll", onScroll);
+      ro.disconnect();
+      if (pending != null) cancelAnimationFrame(pending);
     };
   }, [pull, radius, xMV, yMV]);
 

@@ -265,9 +265,14 @@ export default function HeroSection({ trending = [] }) {
                   fill
                   sizes="(max-width: 1100px) 100vw, 1100px"
                   className={styles.slideImage}
+                  /* Only the first slide is the LCP candidate; preload it
+                     and tell the browser to fetch ASAP. The rest stay lazy
+                     so we don't waste mobile bandwidth on slides users may
+                     never reach. */
                   preload={i === 0}
+                  loading={i === 0 ? "eager" : "lazy"}
                   fetchPriority={i === current ? "high" : "low"}
-                  quality={78}
+                  quality={68}
                 />
               )}
               <div className={styles.bgVignette} />

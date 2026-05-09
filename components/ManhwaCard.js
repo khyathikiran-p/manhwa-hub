@@ -83,10 +83,10 @@ export default function ManhwaCard({ manhwa, index = 0 }) {
                 src={coverUrl}
                 alt={title}
                 fill
-                sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 220px"
+                sizes="(max-width: 640px) 48vw, (max-width: 1024px) 26vw, 220px"
                 className={styles.image}
                 loading="lazy"
-                quality={72}
+                quality={62}
               />
             )}
 

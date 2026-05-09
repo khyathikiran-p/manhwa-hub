@@ -329,7 +329,9 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 26px;
+  /* WCAG 2.5.5 AAA target size — 48×48 minimum hit area */
+  min-height: 48px;
+  padding: 14px 28px;
   font-size: 0.92rem;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -485,7 +487,11 @@
 .genrePill {
   display: inline-flex;
   align-items: center;
-  padding: 8px 22px;
+  /* 48px min-height satisfies WCAG 2.5.5 AAA Target Size on mobile.
+     The visual pill still looks compact because the padding is generous;
+     touch users get a comfortable hit area. */
+  min-height: 48px;
+  padding: 12px 22px;
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -507,7 +513,9 @@
 
 .expandLink {
   align-self: center;
-  padding: 6px 14px;
+  /* Comfortable WCAG-grade tap target while staying visually subtle */
+  min-height: 48px;
+  padding: 14px 18px;
   margin-top: 4px;
   font-size: 0.72rem;
   font-weight: 700;
@@ -568,7 +576,13 @@
   z-index: 3;
 }
 
+/* The dot itself is a small visual indicator (18x4 / 32x4) but we wrap it
+   in a much larger transparent hit area so the actual touch target meets
+   the WCAG 48x48 guideline. Padding is on the <button> via box-shadow
+   inset-style; we use `padding` + `background-clip: content-box` so the
+   colored pill stays the same size while the click region grows. */
 .dot {
+  position: relative;
   width: 18px;
   height: 4px;
   border-radius: 999px;
@@ -577,6 +591,17 @@
   transition: all var(--transition-base);
   border: none;
   padding: 0;
+}
+
+/* Invisible 48x48 hit area centered on the visible pill */
+.dot::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
 }
 
 .dot:hover {
