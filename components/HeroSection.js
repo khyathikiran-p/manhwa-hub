@@ -118,6 +118,17 @@ export default function HeroSection({ trending = [] }) {
   const [expanded, setExpanded] = useState(false);
   const [interacting, setInteracting] = useState(false);
   const heroRef = useRef(null);
+  // Per-touch swipe tracking. `consumed` flips true once a horizontal drag
+  // is detected — only then do we treat the gesture as a swipe and suppress
+  // the inner click. Pure taps leave `consumed=false` and the <Link>
+  // navigates as normal.
+  const swipeStateRef = useRef({
+    startX: 0,
+    startY: 0,
+    startT: 0,
+    active: false,
+    consumed: false,
+  });
 
   // Helpers that remember direction so the entrance variant can pick the
   // right side to slide in from. Direction 1 = forward, -1 = backward.
@@ -293,6 +304,16 @@ export default function HeroSection({ trending = [] }) {
 
               `custom={direction}` feeds the variant fns the swipe direction
               so new content slides in from the correct side. */}
+          {/* Swipe handlers (manual, not Framer drag).
+              Why not Framer's `drag="x"`? It captures pointerdown and turns
+              every touch into a drag, which suppressed click events on the
+              READ NOW button and SELECTED MANHWA cover thumbnail nested
+              inside. Tapping a card "redirected to home" because the click
+              never reached the <Link>.
+
+              This implementation only commits to a slide change if the
+              pointer moved past `SWIPE_THRESHOLD`. Pure taps fall through
+              to the inner Link handlers untouched. */}
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={current}
@@ -302,22 +323,55 @@ export default function HeroSection({ trending = [] }) {
               initial="enter"
               animate="center"
               exit="exit"
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.18}
-              dragMomentum={false}
-              onDragStart={() => setInteracting(true)}
-              onDragEnd={(_, info) => {
-                const dx = info.offset.x;
-                const vx = info.velocity.x;
+              onPointerDown={(e) => {
+                if (e.pointerType === "mouse" && e.button !== 0) return;
+                swipeStateRef.current = {
+                  startX: e.clientX,
+                  startY: e.clientY,
+                  startT: performance.now(),
+                  active: true,
+                  consumed: false,
+                };
+              }}
+              onPointerMove={(e) => {
+                const s = swipeStateRef.current;
+                if (!s.active) return;
+                const dx = e.clientX - s.startX;
+                const dy = e.clientY - s.startY;
+                // Only mark as a horizontal-swipe-in-progress once the
+                // movement is clearly horizontal AND past a small distance,
+                // so accidental tiny finger jitter doesn't pause auto-rotate
+                // or eat clicks.
+                if (
+                  !s.consumed &&
+                  Math.abs(dx) > 8 &&
+                  Math.abs(dx) > Math.abs(dy)
+                ) {
+                  s.consumed = true;
+                  setInteracting(true);
+                }
+              }}
+              onPointerUp={(e) => {
+                const s = swipeStateRef.current;
+                if (!s.active) return;
+                s.active = false;
+                if (!s.consumed) return; // pure tap — let the click bubble to <Link>
+                const dx = e.clientX - s.startX;
+                const dt = Math.max(1, performance.now() - s.startT);
+                const vx = (dx / dt) * 1000;
                 const swipedLeft =
                   dx < -SWIPE_THRESHOLD || vx < -SWIPE_VELOCITY_THRESHOLD;
                 const swipedRight =
                   dx > SWIPE_THRESHOLD || vx > SWIPE_VELOCITY_THRESHOLD;
                 if (swipedLeft) goTo(current + 1, 1);
                 else if (swipedRight) goTo(current - 1, -1);
-                // Hold off auto-rotate for a moment after a deliberate swipe
                 setTimeout(() => setInteracting(false), 1500);
+              }}
+              onPointerCancel={() => {
+                swipeStateRef.current.active = false;
+                if (swipeStateRef.current.consumed) {
+                  setTimeout(() => setInteracting(false), 1500);
+                }
               }}
               style={{ touchAction: "pan-y" }}
             >
