@@ -348,3 +348,38 @@ select {
     transform: translateY(-6px);
   }
 }
+
+/* ─── Reduced motion ─────────────────────────────────────────────
+   System-wide override for users who request reduced motion (set in
+   OS-level accessibility prefs, or by certain assistive tech). We
+   don't *remove* animations — Framer Motion already short-circuits
+   most spring transitions when the media query matches — but we
+   neutralize the things that aren't framer-driven:
+     - AmbientMesh gradient blob drift
+     - HeroAura wisp canvas (handled in JS too)
+     - Hero slide image cross-fade duration → instant
+     - Generic shimmer / pulse / float keyframes
+     - All transitions snap to the final state in <1ms
+   We also disable Lenis programmatically (see SmoothScroll).
+   ──────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Drop the cross-fade on the hero slides — instant swap */
+  [class*="HeroSection-module"][class*="slide"] {
+    transition: opacity 0.001ms !important;
+  }
+
+  /* Hide the wisp canvas entirely (CSS-level so even if JS misfires
+     the layer is gone). */
+  [class*="HeroAura-module"] {
+    display: none !important;
+  }
+}

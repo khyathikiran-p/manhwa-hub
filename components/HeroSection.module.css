@@ -4,6 +4,11 @@
   padding: calc(var(--navbar-height) + 24px) 28px 32px;
   display: flex;
   justify-content: center;
+  /* iOS Safari rubber-bands the whole page when you swipe horizontally
+     across the hero — the touchmove that drives our slide change also
+     bleeds into vertical bounce-scroll, which makes the entire site
+     jiggle. `overscroll-behavior: contain` stops that propagation. */
+  overscroll-behavior: contain;
 }
 
 /* Edge nav rails — sit outside the orange frame on desktop */
@@ -81,6 +86,11 @@
   background: #0a0805;
   isolation: isolate;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  /* Prevent the swipe-to-change-slide gesture from triggering vertical
+     bounce on iOS. Pairs with the `.hero` overscroll-behavior; both are
+     needed because the swipe event can bubble to the closest scrolling
+     ancestor at either layer. */
+  overscroll-behavior: contain;
 }
 
 /* Glowing border — masked gradient ring around the hero card.

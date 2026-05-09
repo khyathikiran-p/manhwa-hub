@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import AmbientStack from "@/components/AmbientStack";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import WebVitalsReporter from "@/components/WebVitalsReporter";
 
 // Only the weights we actually use across the app — Lighthouse flagged the
 // previous full-weight load as a render-blocking 1.9s drag on mobile.
@@ -63,6 +65,8 @@ export default function RootLayout({ children }) {
         The preconnect hints just wasted browser connection-pool slots.
       */}
       <body data-scroll-behavior="smooth">
+        <ServiceWorkerRegister />
+        <WebVitalsReporter />
         <AmbientStack />
         <Suspense fallback={null}>
           <Navbar />

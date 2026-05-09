@@ -11,10 +11,15 @@ export default function ManhwaGrid({
   onRetry,
 }) {
   if (loading) {
+    // 24 placeholders matches our `perPage: 24` so the grid never reflows
+    // when the real cards arrive — same row count, same column count, just
+    // different children. Skeletons share `cardSpring` config (stiffness
+    // 300 / damping 25), so the transition from skeleton → real card lands
+    // at the exact same final position with no pop.
     return (
       <div className={styles.grid}>
-        {Array.from({ length: 15 }).map((_, i) => (
-          <SkeletonCard key={i} index={i} />
+        {Array.from({ length: 24 }).map((_, i) => (
+          <SkeletonCard key={`skeleton-${i}`} index={i} />
         ))}
       </div>
     );
