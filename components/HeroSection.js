@@ -276,14 +276,25 @@ export default function HeroSection({ trending = [] }) {
                   fill
                   sizes="(max-width: 1100px) 100vw, 1100px"
                   className={styles.slideImage}
-                  /* Only the first slide is the LCP candidate; preload it
-                     and tell the browser to fetch ASAP. The rest stay lazy
-                     so we don't waste mobile bandwidth on slides users may
-                     never reach. */
+                  /*
+                   * Slide 0 is *always* the LCP — Lighthouse measures it
+                   * before auto-rotate has had a chance to advance. So we
+                   * pin slide 0's priority signals all together (preload +
+                   * eager + fetchpriority=high) and never downgrade them.
+                   *
+                   * Other slides stay lazy with `auto` priority. We don't
+                   * push them to "low" because that explicit hint can stop
+                   * the browser from preempting them when the user does
+                   * advance — same payload either way, but smoother for
+                   * the cross-fade.
+                   */
                   preload={i === 0}
                   loading={i === 0 ? "eager" : "lazy"}
-                  fetchPriority={i === current ? "high" : "low"}
-                  quality={68}
+                  fetchPriority={i === 0 ? "high" : "auto"}
+                  /* Lighthouse flagged ~84 KiB of "Improve image delivery"
+                     savings on mobile — quality 60 is visibly identical for
+                     a backdrop image at the rendered cropping. */
+                  quality={60}
                 />
               )}
               <div className={styles.bgVignette} />

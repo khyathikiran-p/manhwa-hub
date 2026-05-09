@@ -1,4 +1,5 @@
 "use client";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -48,35 +49,31 @@ export default function ManhwaCard({ manhwa, index = 0 }) {
   const synopsis = stripHtml(manhwa.description);
   const genres = manhwa.genres?.slice(0, 3) || [];
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9, y: -20 }}
-      transition={{
-        ...cardSpring,
-        delay: index * 0.04,
-      }}
-      layout
-      layoutId={`card-${manhwa.id}`}
+  // react-parallax-tilt attaches pointermove + getBoundingClientRect()
+  // listeners on every card. With ~24 cards, that produced the forced
+  // reflow Lighthouse measured at 34-38 ms on mobile. The tilt effect is
+  // a desktop-only nicety; we skip it entirely on coarse-pointer devices.
+  const [enableTilt, setEnableTilt] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const fine = window.matchMedia("(pointer: fine)");
+    const hover = window.matchMedia("(hover: hover)");
+    const update = () => setEnableTilt(fine.matches && hover.matches);
+    update();
+    fine.addEventListener?.("change", update);
+    hover.addEventListener?.("change", update);
+    return () => {
+      fine.removeEventListener?.("change", update);
+      hover.removeEventListener?.("change", update);
+    };
+  }, []);
+
+  const cardLink = (
+    <Link
+      href={`/manhwa/${manhwa.id}`}
+      className={styles.card}
+      style={{ "--card-glow-color": coverColor }}
     >
-      <Tilt
-        tiltMaxAngleX={8}
-        tiltMaxAngleY={8}
-        glareEnable={true}
-        glareMaxOpacity={0.12}
-        glareColor={coverColor}
-        glarePosition="all"
-        glareBorderRadius="14px"
-        scale={1.03}
-        transitionSpeed={800}
-        className={styles.tiltWrapper}
-      >
-        <Link
-          href={`/manhwa/${manhwa.id}`}
-          className={styles.card}
-          style={{ "--card-glow-color": coverColor }}
-        >
           <div className={styles.imageWrapper}>
             {coverUrl && (
               <Image
@@ -127,7 +124,38 @@ export default function ManhwaCard({ manhwa, index = 0 }) {
             )}
           </div>
         </Link>
-      </Tilt>
+  );
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9, y: -20 }}
+      transition={{
+        ...cardSpring,
+        delay: index * 0.04,
+      }}
+      layout
+      layoutId={`card-${manhwa.id}`}
+    >
+      {enableTilt ? (
+        <Tilt
+          tiltMaxAngleX={8}
+          tiltMaxAngleY={8}
+          glareEnable={true}
+          glareMaxOpacity={0.12}
+          glareColor={coverColor}
+          glarePosition="all"
+          glareBorderRadius="14px"
+          scale={1.03}
+          transitionSpeed={800}
+          className={styles.tiltWrapper}
+        >
+          {cardLink}
+        </Tilt>
+      ) : (
+        cardLink
+      )}
     </motion.div>
   );
 }

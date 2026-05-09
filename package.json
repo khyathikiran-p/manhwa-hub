@@ -21,13 +21,21 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4"
   },
-  "browserslist": [
-    "Chrome >= 109",
-    "Firefox >= 115",
-    "Safari >= 16.4",
-    "Edge >= 109",
-    "iOS >= 16.4",
-    "not dead",
-    "not op_mini all"
-  ]
+  "browserslist": {
+    "production": [
+      "Chrome >= 110",
+      "Firefox >= 115",
+      "Safari >= 16.4",
+      "Edge >= 110",
+      "iOS >= 16.4",
+      "not dead",
+      "not op_mini all",
+      "not ie 11"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

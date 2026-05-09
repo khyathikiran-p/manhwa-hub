@@ -33,23 +33,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={inter.variable}>
-      <head>
-        {/* Preconnect to AniList — Lighthouse measured ~600ms savings on
-            mobile by cutting the initial DNS+TLS handshake before the first
-            cover request fires. */}
-        <link
-          rel="preconnect"
-          href="https://s4.anilist.co"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preconnect"
-          href="https://graphql.anilist.co"
-          crossOrigin="anonymous"
-        />
-        <link rel="dns-prefetch" href="https://s4.anilist.co" />
-        <link rel="dns-prefetch" href="https://graphql.anilist.co" />
-      </head>
+      {/*
+        We previously preconnected to s4.anilist.co and graphql.anilist.co
+        but Lighthouse later flagged both as unused — the browser never
+        actually opens connections to those hosts:
+          - Cover images go through `/_next/image` which proxies to AniList
+            from the server, so the browser fetches from our origin only.
+          - GraphQL requests are made server-side during ISR/revalidate.
+        The preconnect hints just wasted browser connection-pool slots.
+      */}
       <body data-scroll-behavior="smooth">
         <AmbientStack />
         <Suspense fallback={null}>
