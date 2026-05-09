@@ -126,6 +126,20 @@ export default function ManhwaCard({ manhwa, index = 0 }) {
         </Link>
   );
 
+  // On mobile we strip ALL Framer Motion features from the card —
+  // `layout`/`layoutId` cause Framer to call getBoundingClientRect()
+  // and write transforms during touch interactions, which on iOS
+  // Safari shows up as flickering AND was reportedly absorbing touch
+  // events outside the hero. The plain <div> wrapper keeps the same
+  // visual layout but lets the browser handle scroll natively.
+  if (!enableTilt) {
+    return (
+      <div style={{ opacity: 1, transform: "none" }}>
+        {cardLink}
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40, scale: 0.95 }}
@@ -138,24 +152,20 @@ export default function ManhwaCard({ manhwa, index = 0 }) {
       layout
       layoutId={`card-${manhwa.id}`}
     >
-      {enableTilt ? (
-        <Tilt
-          tiltMaxAngleX={8}
-          tiltMaxAngleY={8}
-          glareEnable={true}
-          glareMaxOpacity={0.12}
-          glareColor={coverColor}
-          glarePosition="all"
-          glareBorderRadius="14px"
-          scale={1.03}
-          transitionSpeed={800}
-          className={styles.tiltWrapper}
-        >
-          {cardLink}
-        </Tilt>
-      ) : (
-        cardLink
-      )}
+      <Tilt
+        tiltMaxAngleX={8}
+        tiltMaxAngleY={8}
+        glareEnable={true}
+        glareMaxOpacity={0.12}
+        glareColor={coverColor}
+        glarePosition="all"
+        glareBorderRadius="14px"
+        scale={1.03}
+        transitionSpeed={800}
+        className={styles.tiltWrapper}
+      >
+        {cardLink}
+      </Tilt>
     </motion.div>
   );
 }

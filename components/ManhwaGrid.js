@@ -1,8 +1,23 @@
 "use client";
+import { useEffect, useState } from "react";
 import { AnimatePresence, LayoutGroup } from "framer-motion";
 import ManhwaCard from "./ManhwaCard";
 import SkeletonCard from "./SkeletonCard";
 import styles from "./ManhwaGrid.module.css";
+
+function useIsTouch() {
+  const [touch, setTouch] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const m = window.matchMedia("(pointer: coarse)");
+    const update = () =>
+      setTouch(m.matches || (navigator.maxTouchPoints || 0) > 0);
+    update();
+    m.addEventListener?.("change", update);
+    return () => m.removeEventListener?.("change", update);
+  }, []);
+  return touch;
+}
 
 export default function ManhwaGrid({
   manhwas = [],
@@ -10,6 +25,7 @@ export default function ManhwaGrid({
   error = null,
   onRetry,
 }) {
+  const isTouch = useIsTouch();
   if (loading) {
     // 24 placeholders matches our `perPage: 24` so the grid never reflows
     // when the real cards arrive — same row count, same column count, just
@@ -51,6 +67,22 @@ export default function ManhwaGrid({
             Try adjusting your filters or search terms to discover more titles.
           </p>
         </div>
+      </div>
+    );
+  }
+
+  // On touch devices we render a plain grid — no LayoutGroup, no
+  // AnimatePresence. Both of those install pointer event listeners and
+  // run layout calculations on every render that on iOS Safari interfere
+  // with native scroll. The cards themselves switch to a plain <div>
+  // wrapper inside ManhwaCard when isTouch — full visual parity, zero
+  // touch interception.
+  if (isTouch) {
+    return (
+      <div className={styles.grid}>
+        {manhwas.map((m, i) => (
+          <ManhwaCard key={m.id} manhwa={m} index={i} />
+        ))}
       </div>
     );
   }

@@ -86,17 +86,39 @@ html {
   text-size-adjust: 100%;
 }
 
-/* `touch-action: manipulation` removes the 300 ms double-tap-to-zoom delay
-   on tappable controls AND prevents the compositor "tap zoom" pass that
-   produces a brief whitewash flash on iOS. Apply only to actual controls
-   so vertical scroll on the rest of the page stays native. */
-a,
-button,
-input,
-select,
-textarea,
-[role="button"] {
-  touch-action: manipulation;
+/* Force vertical scroll to work everywhere — explicit pan-y on the
+   document root + main + grid containers. iOS Safari otherwise sometimes
+   absorbs the touch on whichever child element the finger lands on
+   (especially Framer Motion-decorated divs), making the page feel like
+   it can only be scrolled from a small zone.
+
+   We deliberately do NOT set `touch-action: manipulation` on links/buttons
+   anymore — that hint, combined with Framer's pointer event capture,
+   was the source of "I can only scroll from the hero" reports. Default
+   `touch-action: auto` lets the browser handle everything naturally. */
+html,
+body {
+  touch-action: pan-y;
+  /* iOS momentum scroll. Modern Safari does this by default but legacy
+     iOS still benefits from the explicit hint. */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile / touch hard-kill: any backdrop-filter is re-rasterized on
+   every scroll tick by iOS Safari WebKit. With several stacked layers
+   (Navbar pill, hero rating box, card glass overlay, search overlay)
+   that's the dominant remaining flicker source. We remove every blur
+   on touch and replace with opaque backgrounds. */
+@media (pointer: coarse), (max-width: 600px) {
+  *[class*="backdrop"],
+  *[class*="glass"],
+  *[class*="ratingBox"],
+  *[class*="scoreBadge"],
+  *[class*="nav.scrolled"],
+  *[class*="searchPanel"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
 }
 
 body {
