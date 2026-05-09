@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import Tilt from "react-parallax-tilt";
 import styles from "./ManhwaCard.module.css";
@@ -78,11 +79,14 @@ export default function ManhwaCard({ manhwa, index = 0 }) {
         >
           <div className={styles.imageWrapper}>
             {coverUrl && (
-              <img
+              <Image
                 src={coverUrl}
                 alt={title}
+                fill
+                sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 220px"
                 className={styles.image}
                 loading="lazy"
+                quality={72}
               />
             )}
 

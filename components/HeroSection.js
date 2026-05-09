@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   motion,
   AnimatePresence,
@@ -217,10 +218,15 @@ export default function HeroSection({ trending = [] }) {
               className={`${styles.slide} ${i === current ? styles.active : ""}`}
             >
               {(t.bannerImage || t.coverImage?.extraLarge) && (
-                <img
+                <Image
                   src={t.bannerImage || t.coverImage?.extraLarge}
                   alt=""
+                  fill
+                  sizes="(max-width: 1100px) 100vw, 1100px"
                   className={styles.slideImage}
+                  preload={i === 0}
+                  fetchPriority={i === current ? "high" : "low"}
+                  quality={78}
                 />
               )}
               <div className={styles.bgVignette} />
@@ -307,7 +313,15 @@ export default function HeroSection({ trending = [] }) {
                         data-cursor-label="View"
                       >
                         {cover ? (
-                          <img src={cover} alt={title} />
+                          <Image
+                            src={cover}
+                            alt={title}
+                            width={88}
+                            height={130}
+                            sizes="88px"
+                            quality={70}
+                            unoptimized={false}
+                          />
                         ) : (
                           <span className={styles.coverFallback} />
                         )}

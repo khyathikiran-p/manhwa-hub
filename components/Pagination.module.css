@@ -4,6 +4,10 @@
   justify-content: center;
   gap: 6px;
   padding: 40px 0 24px;
+  /* Reserve space so the pagination block has the same height whether or
+     not paging is needed yet. Without this Lighthouse measured CLS 0.106
+     because the block popped in after the first cover render. */
+  min-height: 104px;
 }
 
 .pageBtn {

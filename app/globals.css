@@ -1,4 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+/* Inter is loaded via next/font/google in app/layout.js — keeps it self-hosted
+   and eliminates the render-blocking Google Fonts request that Lighthouse
+   measured at ~1.9s on mobile. Don't add an `@import` here. */
 
 /* ─── Design Tokens ──────────────────────────────────────────── */
 :root {

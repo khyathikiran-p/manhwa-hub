@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -186,7 +187,14 @@ export default function SearchOverlay({ open, onClose, defaultCountry = "KR" }) 
                         >
                           <span className={styles.thumb}>
                             {m.coverImage?.large ? (
-                              <img src={m.coverImage.large} alt="" />
+                              <Image
+                                src={m.coverImage.large}
+                                alt=""
+                                width={50}
+                                height={70}
+                                sizes="50px"
+                                quality={65}
+                              />
                             ) : (
                               <span className={styles.thumbFallback} />
                             )}
