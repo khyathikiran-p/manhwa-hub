@@ -351,6 +351,14 @@ export default function HeroSection({ trending = [] }) {
               This implementation only commits to a slide change if the
               pointer moved past `SWIPE_THRESHOLD`. Pure taps fall through
               to the inner Link handlers untouched. */}
+          {/* Swipe handlers — desktop / fine-pointer only.
+              On Android, even our manual pointer-event handlers ended up
+              capturing taps on inner buttons (READ NOW, SELECTED MANHWA
+              cover) — taps just didn't register. We now gate all swipe
+              tracking behind `enableParallax` (the fine-pointer +
+              non-reduced-motion flag we use elsewhere). Touch users
+              navigate slides via the NEXT/PREV circle buttons and the
+              dot pagination at the bottom of the hero. */}
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={current}
@@ -360,57 +368,59 @@ export default function HeroSection({ trending = [] }) {
               initial="enter"
               animate="center"
               exit="exit"
-              onPointerDown={(e) => {
-                if (e.pointerType === "mouse" && e.button !== 0) return;
-                swipeStateRef.current = {
-                  startX: e.clientX,
-                  startY: e.clientY,
-                  startT: performance.now(),
-                  active: true,
-                  consumed: false,
-                };
-              }}
-              onPointerMove={(e) => {
-                const s = swipeStateRef.current;
-                if (!s.active) return;
-                const dx = e.clientX - s.startX;
-                const dy = e.clientY - s.startY;
-                // Only mark as a horizontal-swipe-in-progress once the
-                // movement is clearly horizontal AND past a small distance,
-                // so accidental tiny finger jitter doesn't pause auto-rotate
-                // or eat clicks.
-                if (
-                  !s.consumed &&
-                  Math.abs(dx) > 8 &&
-                  Math.abs(dx) > Math.abs(dy)
-                ) {
-                  s.consumed = true;
-                  setInteracting(true);
-                }
-              }}
-              onPointerUp={(e) => {
-                const s = swipeStateRef.current;
-                if (!s.active) return;
-                s.active = false;
-                if (!s.consumed) return; // pure tap — let the click bubble to <Link>
-                const dx = e.clientX - s.startX;
-                const dt = Math.max(1, performance.now() - s.startT);
-                const vx = (dx / dt) * 1000;
-                const swipedLeft =
-                  dx < -SWIPE_THRESHOLD || vx < -SWIPE_VELOCITY_THRESHOLD;
-                const swipedRight =
-                  dx > SWIPE_THRESHOLD || vx > SWIPE_VELOCITY_THRESHOLD;
-                if (swipedLeft) goTo(current + 1, 1);
-                else if (swipedRight) goTo(current - 1, -1);
-                setTimeout(() => setInteracting(false), 1500);
-              }}
-              onPointerCancel={() => {
-                swipeStateRef.current.active = false;
-                if (swipeStateRef.current.consumed) {
-                  setTimeout(() => setInteracting(false), 1500);
-                }
-              }}
-              style={{ touchAction: "pan-y" }}
+              {...(enableParallax
+                ? {
+                    onPointerDown: (e) => {
+                      if (e.pointerType === "mouse" && e.button !== 0) return;
+                      swipeStateRef.current = {
+                        startX: e.clientX,
+                        startY: e.clientY,
+                        startT: performance.now(),
+                        active: true,
+                        consumed: false,
+                      };
+                    },
+                    onPointerMove: (e) => {
+                      const s = swipeStateRef.current;
+                      if (!s.active) return;
+                      const dx = e.clientX - s.startX;
+                      const dy = e.clientY - s.startY;
+                      if (
+                        !s.consumed &&
+                        Math.abs(dx) > 8 &&
+                        Math.abs(dx) > Math.abs(dy)
+                      ) {
+                        s.consumed = true;
+                        setInteracting(true);
+                      }
+                    },
+                    onPointerUp: (e) => {
+                      const s = swipeStateRef.current;
+                      if (!s.active) return;
+                      s.active = false;
+                      if (!s.consumed) return;
+                      const dx = e.clientX - s.startX;
+                      const dt = Math.max(1, performance.now() - s.startT);
+                      const vx = (dx / dt) * 1000;
+                      const swipedLeft =
+                        dx < -SWIPE_THRESHOLD ||
+                        vx < -SWIPE_VELOCITY_THRESHOLD;
+                      const swipedRight =
+                        dx > SWIPE_THRESHOLD ||
+                        vx > SWIPE_VELOCITY_THRESHOLD;
+                      if (swipedLeft) goTo(current + 1, 1);
+                      else if (swipedRight) goTo(current - 1, -1);
+                      setTimeout(() => setInteracting(false), 1500);
+                    },
+                    onPointerCancel: () => {
+                      swipeStateRef.current.active = false;
+                      if (swipeStateRef.current.consumed) {
+                        setTimeout(() => setInteracting(false), 1500);
+                      }
+                    },
+                  }
+                : {})}
+              style={{ touchAction: enableParallax ? "pan-y" : "auto" }}
             >
               {/* Top: Title block */}
               <div className={styles.titleBlock}>

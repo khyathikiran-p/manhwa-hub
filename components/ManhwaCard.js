@@ -38,7 +38,7 @@ const cardSpring = {
   mass: 0.8,
 };
 
-export default function ManhwaCard({ manhwa, index = 0 }) {
+export default function ManhwaCard({ manhwa, index = 0, eager = false }) {
   const title =
     manhwa.title?.english || manhwa.title?.romaji || "Unknown Title";
   const coverUrl =
@@ -82,7 +82,12 @@ export default function ManhwaCard({ manhwa, index = 0 }) {
                 fill
                 sizes="(max-width: 640px) 48vw, (max-width: 1024px) 26vw, 220px"
                 className={styles.image}
-                loading="lazy"
+                /* `eager` flag: rendered for the first 4-6 cards (the
+                   ones likely visible above the fold mid-scroll on
+                   mobile). Avoids the "scroll halfway, then wait for
+                   image" lag the user reported. */
+                loading={eager ? "eager" : "lazy"}
+                fetchPriority={eager ? "high" : "auto"}
                 quality={62}
               />
             )}

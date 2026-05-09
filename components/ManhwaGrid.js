@@ -77,11 +77,21 @@ export default function ManhwaGrid({
   // with native scroll. The cards themselves switch to a plain <div>
   // wrapper inside ManhwaCard when isTouch — full visual parity, zero
   // touch interception.
+  // First 6 cards = roughly the first 1-1.5 rows of the grid on every
+  // breakpoint. We eager-load their images so a mid-scroll user doesn't
+  // hit the "wait for the lazy image" pause.
+  const eagerCount = 6;
+
   if (isTouch) {
     return (
       <div className={styles.grid}>
         {manhwas.map((m, i) => (
-          <ManhwaCard key={m.id} manhwa={m} index={i} />
+          <ManhwaCard
+            key={m.id}
+            manhwa={m}
+            index={i}
+            eager={i < eagerCount}
+          />
         ))}
       </div>
     );
@@ -92,7 +102,12 @@ export default function ManhwaGrid({
       <div className={styles.grid}>
         <AnimatePresence mode="popLayout">
           {manhwas.map((m, i) => (
-            <ManhwaCard key={m.id} manhwa={m} index={i} />
+            <ManhwaCard
+              key={m.id}
+              manhwa={m}
+              index={i}
+              eager={i < eagerCount}
+            />
           ))}
         </AnimatePresence>
       </div>
