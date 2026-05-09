@@ -255,12 +255,18 @@ select {
 }
 
 /* ─── Glow Pulse ─────────────────────────────────────────────── */
+/* Composited: opacity + scale only. The earlier version animated
+   box-shadow which Lighthouse flagged as non-composited (paint each
+   frame). Visually identical when the element has a blurred radial
+   gradient as its glow source. */
 @keyframes glowPulse {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.18);
+    opacity: 0.45;
+    transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 35px rgba(245, 158, 11, 0.45);
+    opacity: 0.85;
+    transform: scale(1.04);
   }
 }
 
@@ -290,14 +296,16 @@ select {
   display: inline-block;
 }
 
+/* Composited replacement: opacity-only flicker. Earlier version animated
+   `filter: drop-shadow(...)` which forced a paint each frame — Lighthouse
+   counted it as a non-composited animation. Same flame "breath" feel
+   without the paint cost. */
 @keyframes flameFlicker {
   0%, 100% {
-    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.55))
-      drop-shadow(0 0 14px rgba(255, 138, 31, 0.55));
+    opacity: 0.92;
   }
   50% {
-    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.55))
-      drop-shadow(0 0 22px rgba(255, 178, 64, 0.85));
+    opacity: 1;
   }
 }
 

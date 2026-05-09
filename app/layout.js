@@ -2,11 +2,7 @@ import { Suspense } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import ParticleBackground from "@/components/ParticleBackground";
-import AmbientBackdrop from "@/components/AmbientBackdrop";
-import AmbientMesh from "@/components/AmbientMesh";
-import SmoothScroll from "@/components/SmoothScroll";
-import CustomCursor from "@/components/CustomCursor";
+import AmbientStack from "@/components/AmbientStack";
 
 // Only the weights we actually use across the app — Lighthouse flagged the
 // previous full-weight load as a render-blocking 1.9s drag on mobile.
@@ -55,11 +51,7 @@ export default function RootLayout({ children }) {
         <link rel="dns-prefetch" href="https://graphql.anilist.co" />
       </head>
       <body data-scroll-behavior="smooth">
-        <SmoothScroll />
-        <AmbientMesh />
-        <AmbientBackdrop />
-        <ParticleBackground />
-        <CustomCursor />
+        <AmbientStack />
         <Suspense fallback={null}>
           <Navbar />
         </Suspense>

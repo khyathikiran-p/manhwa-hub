@@ -75,10 +75,16 @@ function RatingRing({ score = 0, size = 100 }) {
 
 // Per-element entrance — uses the same variant name keys as the parent
 // content variants so inheritance propagates cleanly.
+//
+// We deliberately avoid `filter: blur(...)` here. Even though it looks
+// great, animating filter forces a paint pass each frame and Lighthouse
+// flagged this as a non-composited animation on the hero. Translation +
+// opacity are GPU-composited and produce essentially the same readable
+// "rise into view" feel.
 const slideVariants = {
-  hidden: { opacity: 0, y: 24, filter: "blur(8px)" },
-  visible: { opacity: 1, y: 0, filter: "blur(0px)" },
-  exit: { opacity: 0, y: -16, filter: "blur(6px)" },
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -16 },
 };
 
 export default function HeroSection({ trending = [] }) {
@@ -206,6 +212,8 @@ export default function HeroSection({ trending = [] }) {
       <div className={styles.frame}>
         {/* Glowing border layer */}
         <span className={styles.frameGlow} aria-hidden="true" />
+        {/* Shimmer slash — pure translateX, no paint thrash */}
+        <span className={styles.frameShimmer} aria-hidden="true" />
 
         {/* Background slides — slow parallax layer (deepest depth) */}
         <motion.div

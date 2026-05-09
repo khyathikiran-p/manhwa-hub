@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMagneticSpring } from "@/hooks/useInteractions";
@@ -97,11 +98,22 @@ export default function Navbar() {
             data-cursor="link"
           >
             <span className={styles.logoMark} aria-hidden="true">
-              <img
+              {/*
+                The source file is 787×787 (43 KiB) — much larger than we ever
+                render. We declare the *display* width as 38 (desktop)/68 (≤820)
+                and let next/image emit responsive WebP/AVIF variants via the
+                `/_next/image` optimizer. Result: ~3 KiB instead of 43 KiB,
+                served at 1× and 2× DPR for the actual render size.
+              */}
+              <Image
                 src="/logo-mw.jpeg"
-                alt=""
-                width="38"
-                height="38"
+                alt="Manhwa Weebs"
+                width={38}
+                height={38}
+                sizes="(max-width: 820px) 68px, 38px"
+                quality={70}
+                preload
+                fetchPriority="high"
                 style={{
                   width: 38,
                   height: 38,

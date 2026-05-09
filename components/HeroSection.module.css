@@ -83,7 +83,11 @@
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
 }
 
-/* Glowing border */
+/* Glowing border — masked gradient ring around the hero card.
+   The earlier version animated `background-position` which Lighthouse
+   flagged as non-composited (forces paint each frame). We now keep the
+   gradient static and let the inner shimmer overlay (.frameShimmer) do
+   the motion via translateX — composited / GPU only. */
 .frame::before {
   content: "";
   position: absolute;
@@ -93,26 +97,56 @@
   background: linear-gradient(
     135deg,
     #ffe066 0%,
-    #ff8a1f 30%,
-    #d63f0a 55%,
-    #ff8a1f 80%,
-    #ffe066 100%
+    #ff8a1f 35%,
+    #d63f0a 65%,
+    #ff8a1f 100%
   );
-  background-size: 200% 200%;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
   z-index: 5;
-  animation: frameShimmer 8s ease-in-out infinite;
+}
+
+/* Composited shimmer — a translucent slash that slides across the border
+   ring using translate3d only. */
+.frameShimmer {
+  position: absolute;
+  inset: 0;
+  border-radius: 28px;
+  pointer-events: none;
+  z-index: 6;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 2.5px;
+  overflow: hidden;
+}
+
+.frameShimmer::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  width: 35%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 245, 220, 0.55) 50%,
+    transparent 100%
+  );
+  filter: blur(6px);
+  transform: translate3d(-180%, 0, 0);
+  animation: frameShimmer 7s linear infinite;
+  will-change: transform;
 }
 
 @keyframes frameShimmer {
-  0%, 100% {
-    background-position: 0% 50%;
+  0% {
+    transform: translate3d(-180%, 0, 0);
   }
-  50% {
-    background-position: 100% 50%;
+  100% {
+    transform: translate3d(420%, 0, 0);
   }
 }
 

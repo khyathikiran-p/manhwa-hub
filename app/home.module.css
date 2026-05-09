@@ -126,7 +126,11 @@
 
 .statLabel {
   font-size: 0.78rem;
-  color: var(--text-tertiary);
+  /* AAA contrast on the dark stats-bar background.
+     #c2bcad on #0e0e18 → contrast ratio ~10.2:1 (AAA passes at 7:1 for
+     small text). The earlier var(--text-tertiary) #6a6a88 was 3.79:1,
+     below even AA, which dragged the Lighthouse Accessibility score. */
+  color: #c2bcad;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-top: 4px;
