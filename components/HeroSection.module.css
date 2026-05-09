@@ -157,7 +157,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0.92) contrast(1.05) saturate(1.12);
+  filter: brightness(1) contrast(1.06) saturate(1.15);
   animation: slowZoom 14s ease-out infinite alternate;
 }
 
@@ -174,22 +174,23 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    ellipse 95% 75% at 50% 45%,
-    transparent 40%,
-    rgba(0, 0, 0, 0.35) 100%
+    ellipse 100% 80% at 60% 40%,
+    transparent 55%,
+    rgba(0, 0, 0, 0.25) 100%
   );
 }
 
-/* Just enough darkening at the title (top-left) and synopsis (bottom-left)
-   for legibility, while leaving the center/right of the cover bright. */
+/* Surgical darkening — just the strips behind the title block (top-left)
+   and the SELECTED MANHWA panel (bottom). The center/right of the cover
+   stays unfiltered so the artwork is the visual hero. */
 .bgGradient {
   position: absolute;
   inset: 0;
   background:
-    /* darkens the title-block region only */
-    linear-gradient(115deg, rgba(8, 4, 1, 0.78) 0%, rgba(8, 4, 1, 0.32) 30%, transparent 55%),
-    /* fade-out at the bottom for the SELECTED MANHWA panel */
-    linear-gradient(0deg, rgba(8, 4, 1, 0.85) 0%, rgba(8, 4, 1, 0) 45%);
+    /* title block — strong on the very edge, fades fast */
+    linear-gradient(110deg, rgba(8, 4, 1, 0.72) 0%, rgba(8, 4, 1, 0.18) 22%, transparent 42%),
+    /* bottom synopsis panel — only the lower 35% darkens */
+    linear-gradient(0deg, rgba(8, 4, 1, 0.78) 0%, rgba(8, 4, 1, 0) 38%);
 }
 
 /* ─── Content overlay ────────────────────────────────────────── */

@@ -33,20 +33,26 @@ export default function SmoothScroll() {
     ).matches;
     if (reduceMotion) return;
 
+    // Lenis on touch devices fights the OS scroller — momentum gets doubled,
+    // pull-to-refresh gestures break, and Safari's address bar collapse
+    // produces visible flicker. Native scroll is excellent on mobile, so we
+    // only enable Lenis when there's a fine pointer (mouse / trackpad).
+    const isTouch =
+      window.matchMedia("(pointer: coarse)").matches ||
+      navigator.maxTouchPoints > 0;
+    if (isTouch) return;
+
     const lenis = new Lenis({
-      // Heavy, cinematic feel. Lower = slower drift after wheel-stop.
-      lerp: 0.085,
+      // Heavy-but-responsive. Earlier 0.085 felt floaty; 0.12 reads as a
+      // confident "weighted glide" without feeling sluggish.
+      lerp: 0.12,
       // Easing for programmatic scrollTo() calls
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      // Native-feeling wheel multiplier — 1 is unmodified
       wheelMultiplier: 1,
-      // Touch needs to feel responsive (less momentum than wheel)
-      touchMultiplier: 1.4,
-      // Don't smooth touch — mobile scroll already feels great natively
+      // Touch is gated above, but we still set sensible defaults defensively.
       smoothWheel: true,
       smoothTouch: false,
-      syncTouch: true,
-      // Allow nested scrollables via data-lenis-prevent="true"
+      syncTouch: false,
       eventsTarget: window,
     });
 

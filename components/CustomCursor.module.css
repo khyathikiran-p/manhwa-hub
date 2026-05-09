@@ -1,19 +1,16 @@
-/* Hide the native cursor only on devices that benefit from a custom one.
-   We can't put `cursor: none` on body unconditionally — touch users would
-   see no cursor + no tap visual feedback. */
-@media (pointer: fine) {
-  :global(html),
-  :global(body) {
-    cursor: none;
-  }
-  :global(a),
-  :global(button),
-  :global(input),
-  :global(textarea),
-  :global(select),
-  :global([role="button"]) {
-    cursor: none;
-  }
+/* Hide the native cursor only when our custom cursor is actually mounted.
+   The component toggles a class on <body> so we don't strip the cursor on
+   touch/hybrid devices where the custom cursor is disabled. */
+:global(body.has-custom-cursor) {
+  cursor: none;
+}
+:global(body.has-custom-cursor) :global(a),
+:global(body.has-custom-cursor) :global(button),
+:global(body.has-custom-cursor) :global(input),
+:global(body.has-custom-cursor) :global(textarea),
+:global(body.has-custom-cursor) :global(select),
+:global(body.has-custom-cursor) :global([role="button"]) {
+  cursor: none;
 }
 
 .ring {

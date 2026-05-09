@@ -88,10 +88,11 @@ export default function HeroSection({ trending = [] }) {
   const item = trending[current];
   const cover = item?.coverImage?.extraLarge || item?.coverImage?.large || "";
 
-  // ─── D&D-style layered parallax ─────────────────────────────────
-  // Three layers move at different rates as the user scrolls past the
-  // hero, creating a 3D illusion. We spring the raw scroll progress so
-  // the parallax has weight — direct mapping feels mechanical.
+  // ─── Subtle background-only parallax ─────────────────────────────
+  // The earlier "fade title on scroll" approach made the hero look broken —
+  // users started scrolling and the headline immediately disappeared.
+  // We keep just a slow background drift now: it adds depth without ever
+  // hiding the foreground content.
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
@@ -101,16 +102,8 @@ export default function HeroSection({ trending = [] }) {
     damping: 22,
     mass: 0.9,
   });
-  // Far background — moves slowest, scales gently
-  const bgY = useTransform(scrollSmooth, [0, 1], [0, 220]);
-  const bgScale = useTransform(scrollSmooth, [0, 1], [1, 1.12]);
-  // Title block lifts up faster than the cover
-  const titleY = useTransform(scrollSmooth, [0, 1], [0, -120]);
-  const titleOpacity = useTransform(scrollSmooth, [0, 0.8], [1, 0]);
-  // Bottom panel sinks slightly as you scroll past — adds depth
-  const bottomY = useTransform(scrollSmooth, [0, 1], [0, 60]);
-  // Rating ring tilts and floats
-  const ringY = useTransform(scrollSmooth, [0, 1], [0, -40]);
+  const bgY = useTransform(scrollSmooth, [0, 1], [0, 90]);
+  const bgScale = useTransform(scrollSmooth, [0, 1], [1, 1.05]);
 
   // Content-aware: extract palette from the active cover, derive vector from
   // genres/tags. Vector flows into auto-rotate cadence and Framer variants.
@@ -250,11 +243,8 @@ export default function HeroSection({ trending = [] }) {
               exit="exit"
               variants={contentVariants}
             >
-              {/* Top: Title block — fast foreground layer (lifts up faster) */}
-              <motion.div
-                className={styles.titleBlock}
-                style={{ y: titleY, opacity: titleOpacity }}
-              >
+              {/* Top: Title block */}
+              <div className={styles.titleBlock}>
                 <motion.div
                   className={styles.titleSub}
                   variants={slideVariants}
@@ -287,13 +277,13 @@ export default function HeroSection({ trending = [] }) {
                     </svg>
                   </Link>
                 </motion.div>
-              </motion.div>
+              </div>
 
               {/* Spacer keeps title up top, bottom panel anchored bottom */}
               <div className={styles.spacer} />
 
-              {/* Bottom panel — sinks slightly as you scroll past */}
-              <motion.div className={styles.bottomPanel} style={{ y: bottomY }}>
+              {/* Bottom panel */}
+              <div className={styles.bottomPanel}>
                 <motion.div
                   className={styles.selectedBox}
                   variants={slideVariants}
@@ -358,12 +348,11 @@ export default function HeroSection({ trending = [] }) {
                   className={styles.ratingBox}
                   variants={slideVariants}
                   transition={{ delay: 0.22 }}
-                  style={{ y: ringY }}
                 >
                   <RatingRing score={score} />
                   <span className={styles.ratingLabel}>Average Rating:</span>
                 </motion.div>
-              </motion.div>
+              </div>
             </motion.div>
           </AnimatePresence>
 

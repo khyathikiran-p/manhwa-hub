@@ -61,8 +61,10 @@ const VARIANTS = {
   },
 };
 
-const RING_SPRING = { stiffness: 350, damping: 28, mass: 0.6 };
-const DOT_SPRING = { stiffness: 1100, damping: 38, mass: 0.5 };
+// Tuned for "instant feel with just a hint of follow-through" — earlier
+// values (stiffness 350) produced a noticeable lag tail that read as sluggish.
+const RING_SPRING = { stiffness: 700, damping: 36, mass: 0.45 };
+const DOT_SPRING = { stiffness: 1500, damping: 45, mass: 0.4 };
 
 export default function CustomCursor() {
   const [variant, setVariant] = useState("hidden");
@@ -80,15 +82,35 @@ export default function CustomCursor() {
   const xDotS = useSpring(xDot, DOT_SPRING);
   const yDotS = useSpring(yDot, DOT_SPRING);
 
-  // Don't render on touch devices — `pointer: fine` is the standard signal
+  // Skip on touch devices. We require BOTH a fine pointer AND a hover-capable
+  // device — Surface/iPad-style hybrids often report `pointer: fine` while
+  // also having touch, and a custom cursor on touch causes flicker.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const m = window.matchMedia("(pointer: fine)");
-    const update = () => setEnabled(m.matches);
+    const fine = window.matchMedia("(pointer: fine)");
+    const hover = window.matchMedia("(hover: hover)");
+    const update = () => {
+      const isTouchOnly = navigator.maxTouchPoints > 0 && !hover.matches;
+      setEnabled(fine.matches && hover.matches && !isTouchOnly);
+    };
     update();
-    m.addEventListener?.("change", update);
-    return () => m.removeEventListener?.("change", update);
+    fine.addEventListener?.("change", update);
+    hover.addEventListener?.("change", update);
+    return () => {
+      fine.removeEventListener?.("change", update);
+      hover.removeEventListener?.("change", update);
+    };
   }, []);
+
+  // Mark <body> so the CSS module knows when to hide the native cursor.
+  // Without this, the native cursor gets stripped on every fine-pointer
+  // device, which is wrong for hybrids where we don't render the custom one.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (enabled) document.body.classList.add("has-custom-cursor");
+    else document.body.classList.remove("has-custom-cursor");
+    return () => document.body.classList.remove("has-custom-cursor");
+  }, [enabled]);
 
   useEffect(() => {
     if (!enabled) return;
