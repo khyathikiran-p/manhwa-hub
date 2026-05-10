@@ -548,17 +548,13 @@
 
 /* The "SELECTED MANHWA" panel sits over the bg slide image. Without an
    isolated stacking context, on iOS Safari the bg image's compositor
-   layer could "bleed" through the panel during slide cross-fade — what
-   page 8 of the user's mobile-error PDF showed (Korean cover text
-   overlapping the synopsis). `isolation: isolate` creates a fresh
-   stacking context so children's z-index is contained to this card. */
+   layer could "bleed" through the panel during slide cross-fade.
+   `isolation: isolate` creates a fresh stacking context so children's
+   z-index is contained to this card. */
 .selectedBox {
   position: relative;
   z-index: 2;
   isolation: isolate;
-  /* Solid backdrop so even if a layer below renders early it can't show
-     through. The blur is GPU-cheap on desktop and dropped on mobile by
-     globals.css (which strips backdrop-filter on coarse pointer). */
   background: linear-gradient(
     180deg,
     rgba(8, 4, 1, 0.5) 0%,
@@ -567,10 +563,14 @@
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   border-radius: 16px;
-  padding: 16px;
+  /* Tightened from 16px / gap 12px to 14px / gap 8px so all three
+     sections (title row → synopsis → genres) fit inside the frame
+     without clipping the genre row at the bottom (user reported this
+     missing from the layout). */
+  padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   max-width: 720px;
 }
 
@@ -689,12 +689,12 @@
 .genrePill {
   display: inline-flex;
   align-items: center;
-  /* 48px min-height satisfies WCAG 2.5.5 AAA Target Size on mobile.
-     The visual pill still looks compact because the padding is generous;
-     touch users get a comfortable hit area. */
-  min-height: 48px;
-  padding: 12px 22px;
-  font-size: 0.85rem;
+  /* 40px min-height — slightly under the 48 AAA target so 3 pills
+     fit on one row inside the panel. Tap target is supplemented by
+     the wider padding and the comfortable horizontal gap. */
+  min-height: 40px;
+  padding: 8px 18px;
+  font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: var(--text-primary);
@@ -703,6 +703,7 @@
   border-radius: 999px;
   transition: all var(--transition-fast);
   text-decoration: none;
+  white-space: nowrap;
 }
 
 @media (hover: hover) {
@@ -717,10 +718,12 @@
 
 .expandLink {
   align-self: center;
-  /* Comfortable WCAG-grade tap target while staying visually subtle */
-  min-height: 48px;
-  padding: 14px 18px;
-  margin-top: 4px;
+  /* Tighter than the 48px AAA min so the bottom panel fits all three
+     sections (title / synopsis / genres) inside the hero frame. The
+     hit target is still 36px tall + comfortable horizontal padding. */
+  min-height: 36px;
+  padding: 8px 14px;
+  margin-top: 0;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -741,13 +744,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 14px 22px;
+  gap: 2px;
+  /* Tightened from 14/22 to 10/16 so the box doesn't dominate the
+     bottom-right corner and push the selectedBox content upward. The
+     ring inside is now 84×84 (was 100×100) — same visual hierarchy,
+     less footprint. */
+  padding: 10px 16px;
   background: rgba(20, 12, 5, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  border-radius: 14px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  align-self: end;
 }
 
 .ratingRing {

@@ -658,18 +658,30 @@ export default function HeroSection({ trending = [] }) {
 
                   <div className={styles.divider} />
 
-                  {/* Section 3 — Genre tags */}
+                  {/* Section 3 — Genre tags. Always renders at least
+                      one chip so the section never collapses (some
+                      AniList titles return an empty genres array). */}
                   <div className={styles.genreRow}>
-                    {genres.map((g) => (
+                    {genres.length > 0 ? (
+                      genres.map((g) => (
+                        <Link
+                          key={g}
+                          href={`/browse?genres=${encodeURIComponent(g)}`}
+                          className={styles.genrePill}
+                          data-cursor="link"
+                        >
+                          {g}
+                        </Link>
+                      ))
+                    ) : (
                       <Link
-                        key={g}
-                        href={`/browse?genres=${encodeURIComponent(g)}`}
+                        href={`/manhwa/${item?.id}`}
                         className={styles.genrePill}
                         data-cursor="link"
                       >
-                        {g}
+                        More info →
                       </Link>
-                    ))}
+                    )}
                   </div>
                 </motion.div>
 
@@ -678,7 +690,7 @@ export default function HeroSection({ trending = [] }) {
                   variants={slideVariants}
                   transition={{ delay: 0.22 }}
                 >
-                  <RatingRing score={score} />
+                  <RatingRing score={score} size={84} />
                   <span className={styles.ratingLabel}>Average Rating:</span>
                 </motion.div>
               </div>
