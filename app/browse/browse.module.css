@@ -24,8 +24,19 @@
 }
 
 .browseSubtitle {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+  font-size: 0.95rem;
+  /* AAA contrast on the dark page bg — was var(--text-secondary)
+     #9898b8 (~5.1:1, fails AAA). #c2bcad is 10:1. */
+  color: #c2bcad;
+  margin-bottom: 18px;
+}
+
+/* Country tabs sit between the page header and the filter sidebar.
+   `margin-top` separates them from the subtitle, `margin-bottom` from
+   the layout below. */
+.browseCountryTabs {
+  margin-top: 6px;
+  margin-bottom: 18px;
 }
 
 .browseLayout {

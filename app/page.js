@@ -54,6 +54,30 @@ export default async function HomePage() {
             View All →
           </Link>
         </div>
+
+        {/* Quick switches to the Manga / Manhua equivalents. The home
+            grid itself only shows Manhwa (KR) — these chips deep-link
+            into Browse with the right country filter pre-selected,
+            which is where the actual segregation lives. */}
+        <div className={styles.countryQuickRow}>
+          <span className={styles.countryQuickLabel}>Looking for…</span>
+          <Link href="/browse" className={styles.countryQuickChip}>
+            🇰🇷 Manhwa
+          </Link>
+          <Link
+            href="/browse?country=JP"
+            className={styles.countryQuickChip}
+          >
+            🇯🇵 Manga
+          </Link>
+          <Link
+            href="/browse?country=CN"
+            className={styles.countryQuickChip}
+          >
+            🇨🇳 Manhua
+          </Link>
+        </div>
+
         <ManhwaGrid manhwas={popular} />
       </section>
 

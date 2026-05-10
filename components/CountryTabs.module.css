@@ -1,0 +1,124 @@
+.tabs {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(8, 4, 1, 0.55);
+  border: 1px solid rgba(245, 158, 11, 0.18);
+  border-radius: 14px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  /* WCAG 2.5.5 AAA — comfortable tap target on mobile */
+  min-height: 48px;
+  padding: 8px 18px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}
+
+/* Active tab — orange-tinted background + bold text. The .glow
+   layoutId-driven element below adds the gliding accent glow. */
+.tabActive {
+  color: #1a0d04;
+  background: var(--accent-gradient);
+  border-color: rgba(255, 230, 102, 0.35);
+  box-shadow: 0 4px 14px var(--accent-glow-soft);
+}
+
+.tabActive:hover {
+  background: var(--accent-gradient);
+  color: #1a0d04;
+}
+
+.flag {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.labelGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.label {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.sub {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 245, 230, 0.55);
+}
+
+.tabActive .sub {
+  color: rgba(26, 13, 4, 0.7);
+}
+
+.glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse at top,
+    rgba(255, 178, 64, 0.45),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(12px);
+}
+
+/* Mobile — drop the sub-labels and tighten padding so 3 tabs fit
+   comfortably side-by-side on a 360 px viewport. */
+@media (max-width: 640px) {
+  .tabs {
+    width: 100%;
+    justify-content: stretch;
+  }
+  .tab {
+    flex: 1 1 0;
+    justify-content: center;
+    padding: 10px 12px;
+  }
+  .sub {
+    display: none;
+  }
+}

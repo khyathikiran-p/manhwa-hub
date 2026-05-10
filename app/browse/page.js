@@ -7,6 +7,7 @@ import FilterSidebar from "@/components/FilterSidebar";
 import SortBar from "@/components/SortBar";
 import ManhwaGrid from "@/components/ManhwaGrid";
 import Pagination from "@/components/Pagination";
+import CountryTabs from "@/components/CountryTabs";
 import styles from "./browse.module.css";
 
 function BrowseContent() {
@@ -164,6 +165,10 @@ function BrowseContent() {
               ? "Discover thousands of Chinese manhua titles."
               : "Discover thousands of Korean webtoons — filter by genre, tropes, and more."}
         </p>
+        {/* Primary segregation control. The country query param is the
+            single source of truth — these tabs read from / write to the
+            URL, and the grid below picks that up via initialCountry. */}
+        <CountryTabs className={styles.browseCountryTabs} />
       </div>
 
       <div className={styles.browseLayout}>
