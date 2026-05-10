@@ -119,6 +119,105 @@ const slideContentVariants = {
 const SWIPE_THRESHOLD = 70;
 const SWIPE_VELOCITY_THRESHOLD = 380;
 
+/*
+ * HeroSlideImage — adaptive image that handles wildly different AniList
+ * aspect ratios per slide.
+ *
+ *   AniList serves two image sources for a manhwa:
+ *     - bannerImage: typically ~16:9 wide
+ *     - coverImage.extraLarge: typically ~5:7 tall (book-cover ratio)
+ *
+ *   The hero card has a fixed aspect (clamped 540px..720px tall, max
+ *   1100px wide) which doesn't match either of those reliably. With a
+ *   plain `object-fit: cover` we ended up cropping characters' heads on
+ *   tall covers and side-cropping wide banners.
+ *
+ *   This component:
+ *     1. Loads the image at full size onto a hidden <img> just to read
+ *        naturalWidth/naturalHeight. (next/image's onLoadingComplete
+ *        callback gives us the same data after the optimizer responds.)
+ *     2. Compares the image's aspect ratio to the hero's container
+ *        aspect ratio, and picks one of:
+ *           - `cover` (default, when ratios are close)
+ *           - `cover` + `object-position: center top` (when image is
+ *             taller — preserves faces at the top of book covers)
+ *           - `cover` + `object-position: center 35%` (when image is
+ *             much wider — banner art usually has subject above center)
+ *     3. Renders a blurred copy of itself behind to fill any visual
+ *        edges where the foreground would otherwise show a hard crop.
+ */
+function HeroSlideImage({ src, isLcp, isCurrent }) {
+  const [naturalAspect, setNaturalAspect] = useState(null);
+  const [containerAspect, setContainerAspect] = useState(16 / 9);
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    const node = wrapperRef.current;
+    if (!node) return;
+    const update = () => {
+      const r = node.getBoundingClientRect();
+      if (r.height > 0) setContainerAspect(r.width / r.height);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, []);
+
+  // Translate the (image vs container) aspect into a CSS object-position
+  // hint. Rendered as a CSS variable so the actual paint pass is GPU-only.
+  let objectPosition = "center 50%";
+  if (naturalAspect != null) {
+    const ratio = naturalAspect / containerAspect;
+    if (ratio < 0.85) {
+      // Image is taller than the slot (book-cover style) — focus on top
+      // so the character's face / title is preserved instead of cropped.
+      objectPosition = "center 25%";
+    } else if (ratio > 1.4) {
+      // Image is much wider than the slot (banner) — anime banners
+      // usually compose subject slightly above center.
+      objectPosition = "center 35%";
+    }
+  }
+
+  return (
+    <div ref={wrapperRef} className={styles.slideImageWrap}>
+      {/* Blurred fill — same image scaled up, blurred, behind the
+          foreground. Hides any subtle edges from object-fit cropping
+          and gives the card depth on slides where the artwork doesn't
+          fill the full ratio. */}
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes="(max-width: 1100px) 100vw, 1100px"
+        className={styles.slideImageBlur}
+        loading={isLcp ? "eager" : "lazy"}
+        quality={30}
+        aria-hidden="true"
+      />
+      {/* Foreground — the actual visible image */}
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes="(max-width: 1100px) 100vw, 1100px"
+        className={styles.slideImage}
+        style={{ objectPosition }}
+        preload={isLcp}
+        loading={isLcp ? "eager" : "lazy"}
+        fetchPriority={isLcp ? "high" : "auto"}
+        quality={60}
+        onLoadingComplete={({ naturalWidth, naturalHeight }) => {
+          if (naturalWidth && naturalHeight) {
+            setNaturalAspect(naturalWidth / naturalHeight);
+          }
+        }}
+      />
+    </div>
+  );
+}
+
 export default function HeroSection({ trending = [] }) {
   const [[current, direction], setCurrentDir] = useState([0, 1]);
   const [expanded, setExpanded] = useState(false);
@@ -308,37 +407,18 @@ export default function HeroSection({ trending = [] }) {
               className={`${styles.slide} ${i === current ? styles.active : ""}`}
             >
               {bgSrc ? (
-                <Image
+                /* Adaptive image — see HeroSlideImage above for the
+                   per-slide ratio detection logic. Slide 0 is the LCP
+                   so it gets all the high-priority hints. */
+                <HeroSlideImage
                   src={bgSrc}
-                  alt=""
-                  fill
-                  sizes="(max-width: 1100px) 100vw, 1100px"
-                  className={styles.slideImage}
-                  /*
-                   * Slide 0 is *always* the LCP — Lighthouse measures it
-                   * before auto-rotate has had a chance to advance. So we
-                   * pin slide 0's priority signals all together (preload +
-                   * eager + fetchpriority=high) and never downgrade them.
-                   *
-                   * Other slides stay lazy with `auto` priority. We don't
-                   * push them to "low" because that explicit hint can stop
-                   * the browser from preempting them when the user does
-                   * advance — same payload either way, but smoother for
-                   * the cross-fade.
-                   */
-                  preload={i === 0}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  fetchPriority={i === 0 ? "high" : "auto"}
-                  /* Lighthouse flagged ~84 KiB of "Improve image delivery"
-                     savings on mobile — quality 60 is visibly identical for
-                     a backdrop image at the rendered cropping. */
-                  quality={60}
+                  isLcp={i === 0}
+                  isCurrent={i === current}
                 />
               ) : (
                 /* No usable image from AniList — fill the slot with a
                    themed gradient using the cover hint color so the user
-                   doesn't see a flat blue/teal panel (visible bug on
-                   page 5/6 of the user's mobile-error PDF). */
+                   doesn't see a flat blue/teal panel. */
                 <div
                   className={styles.slideFallback}
                   style={{

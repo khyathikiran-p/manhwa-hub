@@ -77,10 +77,15 @@ export default function ManhwaGrid({
   // with native scroll. The cards themselves switch to a plain <div>
   // wrapper inside ManhwaCard when isTouch — full visual parity, zero
   // touch interception.
-  // First 6 cards = roughly the first 1-1.5 rows of the grid on every
-  // breakpoint. We eager-load their images so a mid-scroll user doesn't
-  // hit the "wait for the lazy image" pause.
-  const eagerCount = 6;
+  // First N cards eager-load. Touch users scrolling fast hit the lazy
+  // boundary in <1s on a tall phone — they don't have time for the
+  // visible-only IntersectionObserver to start fetching. Higher count
+  // on touch fixes the perceived "image takes time to load" report.
+  // 10 cards on touch = ~5 rows on mobile (2-col grid), so the user can
+  // scroll a full screen-and-a-half before hitting any lazy image.
+  // 6 cards on desktop = ~1 row of the 5-col grid, since desktop scroll
+  // speed is more deliberate and lazy is fine below.
+  const eagerCount = isTouch ? 10 : 6;
 
   if (isTouch) {
     return (
