@@ -1,7 +1,11 @@
 .hero {
   position: relative;
   width: 100%;
-  padding: calc(var(--navbar-height) + 24px) 28px 32px;
+  /* Tight padding above + below so the frame's `100dvh - 120px`
+     calculation has the most room to play with. The 16px top buffer
+     visually separates the hero from the navbar; 24px bottom keeps
+     space before the next section. */
+  padding: calc(var(--navbar-height) + 16px) 28px 24px;
   display: flex;
   justify-content: center;
   /* iOS Safari rubber-bands the whole page when you swipe horizontally
@@ -80,15 +84,17 @@
   position: relative;
   width: 100%;
   max-width: 1100px;
-  /* Height is bounded by both an absolute clamp AND the available
-     viewport. The earlier `clamp(540, 70dvh, 720)` could exceed the
-     viewport on short laptops (800px tall windows after navbar +
-     padding had ~672px room — the 720px max overflowed and clipped
-     the bottom panel, which the user reported on PC).
-     Now we subtract the navbar + 80px chrome from 100dvh and pick the
-     smaller of (that, 680px). 540px floor preserves the design on tall
-     monitors. */
-  height: clamp(540px, calc(100dvh - var(--navbar-height) - 80px), 680px);
+  /* Height is bounded ONLY by the available viewport — no forced lower
+     clamp. The earlier `clamp(540, ..., 680)` had a 540px minimum that
+     forced the card to overflow on laptop windows ~768px tall (where
+     after navbar + page padding the available room dropped below 540).
+     Now we subtract a generous chrome allowance (navbar + page padding
+     + a 32px breathing buffer above the next section) from 100dvh and
+     cap at 620px. The card *always* fits, on any monitor. */
+  height: min(620px, calc(100dvh - var(--navbar-height) - 120px));
+  /* Floor at 420 so very short windows still show readable content,
+     even if it means the next section pushes below the fold. */
+  min-height: 420px;
   border-radius: 28px;
   overflow: hidden;
   background: #0a0805;
@@ -313,7 +319,12 @@
   z-index: 2;
   width: 100%;
   height: 100%;
-  padding: 32px 56px 24px;
+  /* Padding tightened from 32/56/24 to 24/40/16 so the inner content
+     fits inside a frame that may now be as short as 420px on a small
+     window. The orange border still has visual breathing room. */
+  padding: 24px 40px 16px;
+  display: flex;
+  flex-direction: column;
 }
 
 .slideContent {
@@ -638,10 +649,13 @@
 
 .synopsis {
   font-size: 0.92rem;
-  line-height: 1.55;
+  line-height: 1.5;
   color: rgba(255, 245, 230, 0.88);
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  /* 3 lines on desktop (was 4) so the bottom panel never pushes the
+     dot pagination off the bottom of the frame. The "Read full
+     synopsis" button still expands to the full text. */
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
