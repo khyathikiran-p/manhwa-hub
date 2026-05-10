@@ -80,11 +80,15 @@
   position: relative;
   width: 100%;
   max-width: 1100px;
-  /* `dvh` (dynamic viewport height) shrinks/grows with the iOS Safari
-     URL bar and Android keyboard. Without it the frame's `70vh` was
-     calculated against the browser's "large viewport" — squashing the
-     page when the address bar collapsed. */
-  height: clamp(540px, 70dvh, 720px);
+  /* Height is bounded by both an absolute clamp AND the available
+     viewport. The earlier `clamp(540, 70dvh, 720)` could exceed the
+     viewport on short laptops (800px tall windows after navbar +
+     padding had ~672px room — the 720px max overflowed and clipped
+     the bottom panel, which the user reported on PC).
+     Now we subtract the navbar + 80px chrome from 100dvh and pick the
+     smaller of (that, 680px). 540px floor preserves the design on tall
+     monitors. */
+  height: clamp(540px, calc(100dvh - var(--navbar-height) - 80px), 680px);
   border-radius: 28px;
   overflow: hidden;
   background: #0a0805;
@@ -807,10 +811,13 @@
   }
 
   .frame {
-    /* dvh on mobile so the iOS URL-bar collapse doesn't squash the
-       hero's grid-rows = auto / 1fr / auto layout (was visible as
-       the rating ring being pushed off-screen on short Android phones). */
-    height: min(78dvh, 760px);
+    /* Mobile: scale to viewport minus navbar + a bit of bottom
+       breathing room. Caps at 720 px so on very tall phones the
+       hero doesn't dwarf the rest of the page. */
+    height: min(
+      calc(100dvh - var(--navbar-height) - 60px),
+      720px
+    );
     min-height: 540px;
     border-radius: 22px;
   }
