@@ -77,6 +77,33 @@
   border-radius: 4px;
 }
 
+/* Same color/transition as .link, but lays out an icon + text inline.
+   Used for the Instagram footer entry. */
+.linkSocial {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  transition: color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .linkSocial:hover {
+    color: var(--accent-secondary);
+    transform: translateX(2px);
+  }
+}
+
+.linkSocial:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
 .bottom {
   max-width: 1320px;
   margin: 0 auto;
