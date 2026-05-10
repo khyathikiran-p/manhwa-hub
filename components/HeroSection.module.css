@@ -219,19 +219,22 @@
   overflow: hidden;
 }
 
-/* Blurred backdrop layer — same image, scaled up, heavily blurred.
-   Sits behind the sharp foreground so when we use object-fit: cover
-   with custom object-position, any "edge" of the foreground crop is
-   masked by a soft, on-brand-color blur instead of a hard line. */
+/* Blurred backdrop — same image, scaled up, heavily blurred. This is
+   the layer that always fills the orange-bordered card edge-to-edge,
+   so when the foreground uses `object-fit: contain` (portrait covers)
+   the side margins don't read as letterboxing — they read as a
+   "themed glow" matching the manhwa's color palette.
+   Heavier blur + lower brightness on touch (set in @media below) so
+   the foreground reads cleanly even on small screens. */
 .slideImageBlur {
   position: absolute;
-  inset: -10%;
-  width: 120%;
-  height: 120%;
+  inset: -15%;
+  width: 130%;
+  height: 130%;
   object-fit: cover;
-  filter: blur(28px) brightness(0.75) saturate(1.2);
-  transform: scale(1.05);
-  opacity: 0.85;
+  filter: blur(40px) brightness(0.62) saturate(1.35) contrast(1.05);
+  transform: scale(1.1);
+  opacity: 0.92;
   z-index: 0;
 }
 
@@ -240,10 +243,10 @@
   inset: 0;
   width: 100%;
   height: 100%;
+  /* `object-fit` and `object-position` are set inline by
+     HeroSlideImage based on the image's natural aspect vs. the
+     container's. We default to cover here for SSR. */
   object-fit: cover;
-  /* `object-position` is set inline by HeroSlideImage based on the
-     image's natural aspect ratio vs. the container — so character
-     faces in tall covers don't get cropped at the top. */
   filter: brightness(1) contrast(1.06) saturate(1.15);
   animation: slowZoom 14s ease-out infinite alternate;
   z-index: 1;

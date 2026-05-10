@@ -120,31 +120,33 @@ const SWIPE_THRESHOLD = 70;
 const SWIPE_VELOCITY_THRESHOLD = 380;
 
 /*
- * HeroSlideImage — adaptive image that handles wildly different AniList
- * aspect ratios per slide.
+ * HeroSlideImage — adaptive image that gives every slide the same
+ * "Sandmancer-style" themed presentation regardless of what AniList
+ * actually returns for that title.
  *
- *   AniList serves two image sources for a manhwa:
- *     - bannerImage: typically ~16:9 wide
- *     - coverImage.extraLarge: typically ~5:7 tall (book-cover ratio)
+ *   Inputs vary widely:
+ *     - bannerImage:           wide (~3:1 or 16:9)
+ *     - coverImage.extraLarge: tall portrait (~5:7)
+ *     - some titles have only one or the other
  *
- *   The hero card has a fixed aspect (clamped 540px..720px tall, max
- *   1100px wide) which doesn't match either of those reliably. With a
- *   plain `object-fit: cover` we ended up cropping characters' heads on
- *   tall covers and side-cropping wide banners.
- *
- *   This component:
- *     1. Loads the image at full size onto a hidden <img> just to read
- *        naturalWidth/naturalHeight. (next/image's onLoadingComplete
- *        callback gives us the same data after the optimizer responds.)
- *     2. Compares the image's aspect ratio to the hero's container
- *        aspect ratio, and picks one of:
- *           - `cover` (default, when ratios are close)
- *           - `cover` + `object-position: center top` (when image is
- *             taller — preserves faces at the top of book covers)
- *           - `cover` + `object-position: center 35%` (when image is
- *             much wider — banner art usually has subject above center)
- *     3. Renders a blurred copy of itself behind to fill any visual
- *        edges where the foreground would otherwise show a hard crop.
+ *   Strategy:
+ *     1. Render a HEAVILY BLURRED copy of the image as a backdrop. Same
+ *        image, scaled 130%, blurred 40px. This is the layer that fills
+ *        the orange-bordered card edge-to-edge no matter what.
+ *     2. Render the FOREGROUND image with the right `object-fit`:
+ *          - If the image's natural ratio is close to the container's
+ *            (within 25%): `cover` — fills the slot, normal cropping.
+ *          - If the image is much taller (portrait covers): `contain`,
+ *            centered. This shows the FULL artwork un-cropped, and the
+ *            blurred backdrop visually fills the side margins so it
+ *            never reads as "letterboxed".
+ *          - If the image is much wider (a tall banner cropped to
+ *            mobile): `cover` with `object-position: center 35%` so
+ *            subjects (typically above mid-line in anime art) stay in
+ *            frame.
+ *     3. `onLoadingComplete` reads naturalWidth/Height; ResizeObserver
+ *        tracks the container. Both update reactively so a window
+ *        resize re-evaluates the fit.
  */
 function HeroSlideImage({ src, isLcp, isCurrent }) {
   const [naturalAspect, setNaturalAspect] = useState(null);
@@ -164,28 +166,36 @@ function HeroSlideImage({ src, isLcp, isCurrent }) {
     return () => ro.disconnect();
   }, []);
 
-  // Translate the (image vs container) aspect into a CSS object-position
-  // hint. Rendered as a CSS variable so the actual paint pass is GPU-only.
+  // Decide fit + position. We default to `cover` (which matches what the
+  // user's reference Sandmancer image looks like — full-bleed art) and
+  // only switch to `contain` for heavily portrait-shaped covers, where
+  // cover would crop off the character's head.
+  let objectFit = "cover";
   let objectPosition = "center 50%";
   if (naturalAspect != null) {
     const ratio = naturalAspect / containerAspect;
-    if (ratio < 0.85) {
-      // Image is taller than the slot (book-cover style) — focus on top
-      // so the character's face / title is preserved instead of cropped.
-      objectPosition = "center 25%";
+    if (ratio < 0.7) {
+      // Much taller than the slot — most likely a portrait coverImage
+      // for a title that has no bannerImage. Show the cover whole;
+      // blurred backdrop fills the sides.
+      objectFit = "contain";
+      objectPosition = "center center";
+    } else if (ratio < 0.92) {
+      // Slightly taller — prefer the top of the image so heads aren't
+      // cropped. (`cover` mode here.)
+      objectPosition = "center 22%";
     } else if (ratio > 1.4) {
-      // Image is much wider than the slot (banner) — anime banners
-      // usually compose subject slightly above center.
+      // Much wider than the slot — anime banner art usually composes
+      // its subject ~35% from the top, so frame on that.
       objectPosition = "center 35%";
     }
   }
 
   return (
     <div ref={wrapperRef} className={styles.slideImageWrap}>
-      {/* Blurred fill — same image scaled up, blurred, behind the
-          foreground. Hides any subtle edges from object-fit cropping
-          and gives the card depth on slides where the artwork doesn't
-          fill the full ratio. */}
+      {/* Blurred backdrop — same image, scaled, heavily blurred. This
+          is what makes the card feel "themed to the manhwa" even when
+          the foreground is a smaller portrait. */}
       <Image
         src={src}
         alt=""
@@ -193,21 +203,21 @@ function HeroSlideImage({ src, isLcp, isCurrent }) {
         sizes="(max-width: 1100px) 100vw, 1100px"
         className={styles.slideImageBlur}
         loading={isLcp ? "eager" : "lazy"}
-        quality={30}
+        quality={25}
         aria-hidden="true"
       />
-      {/* Foreground — the actual visible image */}
+      {/* Foreground — the actual visible artwork */}
       <Image
         src={src}
         alt=""
         fill
         sizes="(max-width: 1100px) 100vw, 1100px"
         className={styles.slideImage}
-        style={{ objectPosition }}
+        style={{ objectFit, objectPosition }}
         preload={isLcp}
         loading={isLcp ? "eager" : "lazy"}
         fetchPriority={isLcp ? "high" : "auto"}
-        quality={60}
+        quality={70}
         onLoadingComplete={({ naturalWidth, naturalHeight }) => {
           if (naturalWidth && naturalHeight) {
             setNaturalAspect(naturalWidth / naturalHeight);
