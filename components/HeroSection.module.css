@@ -770,17 +770,26 @@
 }
 
 .ratingLabel {
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255, 240, 220, 0.7);
+  color: rgba(255, 240, 220, 0.78);
+  /* Trim descenders so "AVERAGE RATING" caps don't visually clip on
+     the bottom-curve of the ratingBox. */
+  line-height: 1.1;
+  /* A hair of extra bottom margin so the label has breathing room
+     above the bottom edge of the rating box and the orange frame. */
+  margin-bottom: 2px;
 }
 
 /* ─── Dots ──────────────────────────────────────────────────── */
 .dots {
   position: absolute;
-  bottom: 14px;
+  /* 8 → 12 px so the dots clear the orange border's bottom curve and
+     don't visually fight with the AVERAGE RATING label sitting right
+     above them on tighter viewports. */
+  bottom: 8px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
