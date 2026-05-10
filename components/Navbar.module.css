@@ -263,17 +263,26 @@
     padding: 0 12px;
   }
 
+  /* Hide the wordmark on tiny phones — the MW circle mark is recognisable
+     on its own and the navbar tabs hide below 820px anyway, so the right
+     cluster (search + avatar + hamburger) gets the breathing room it
+     needs. The site name still appears in the browser title bar. */
   .logoText {
-    font-size: 0.95rem;
+    display: none;
+  }
+
+  .logoMark {
+    width: 36px;
+    height: 36px;
   }
 
   .iconBtn {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
   }
 
   .avatarRing {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
   }
 }

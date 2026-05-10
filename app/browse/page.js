@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, useCallback, useTransition, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { fetchManhwaList } from "@/lib/anilist";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -38,6 +38,9 @@ function BrowseContent() {
   const [pageInfo, setPageInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // useTransition keeps the OLD grid visible while a filter change
+  // refetches — no full skeleton flash between filter toggles.
+  const [isPending, startTransition] = useTransition();
 
   const debouncedSearch = useDebounce(search, 500);
 
@@ -96,29 +99,39 @@ function BrowseContent() {
     fetchData();
   }, [fetchData]);
 
-  // Reset page on filter changes
+  // Reset page on filter changes — wrapped in startTransition so React
+  // keeps the old grid rendered while the new filter resolves. Without
+  // this every toggle flashed a full skeleton.
   const handleGenreChange = (newGenres) => {
-    setGenres(newGenres);
-    setPage(1);
-    updateUrl({ genres: newGenres, page: 1 });
+    startTransition(() => {
+      setGenres(newGenres);
+      setPage(1);
+      updateUrl({ genres: newGenres, page: 1 });
+    });
   };
 
   const handleTagChange = (newTags) => {
-    setTags(newTags);
-    setPage(1);
-    updateUrl({ tags: newTags, page: 1 });
+    startTransition(() => {
+      setTags(newTags);
+      setPage(1);
+      updateUrl({ tags: newTags, page: 1 });
+    });
   };
 
   const handleStatusChange = (newStatus) => {
-    setStatus(newStatus);
-    setPage(1);
-    updateUrl({ status: newStatus, page: 1 });
+    startTransition(() => {
+      setStatus(newStatus);
+      setPage(1);
+      updateUrl({ status: newStatus, page: 1 });
+    });
   };
 
   const handleSortChange = (newSort) => {
-    setSort(newSort);
-    setPage(1);
-    updateUrl({ sort: newSort, page: 1 });
+    startTransition(() => {
+      setSort(newSort);
+      setPage(1);
+      updateUrl({ sort: newSort, page: 1 });
+    });
   };
 
   const handlePageChange = (newPage) => {
@@ -181,12 +194,18 @@ function BrowseContent() {
             onClearStatus={() => handleStatusChange(null)}
           />
 
-          <ManhwaGrid
-            manhwas={manhwas}
-            loading={loading}
-            error={error}
-            onRetry={fetchData}
-          />
+          {/* Reserve viewport height so the page never collapses to an
+              empty band when Suspense / data load is slow on mobile.
+              The user's PDF showed pages 4 and 7 rendering as just the
+              navbar + ambient glow — preventing that. */}
+          <div style={{ minHeight: "60vh" }}>
+            <ManhwaGrid
+              manhwas={manhwas}
+              loading={loading}
+              error={error}
+              onRetry={fetchData}
+            />
+          </div>
 
           <Pagination
             currentPage={page}

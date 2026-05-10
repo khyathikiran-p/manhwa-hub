@@ -12,7 +12,15 @@
   -webkit-backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
-  padding: 90px 20px 20px;
+  /* `100dvh` = dynamic viewport height (shrinks to fit when the keyboard
+     opens). Pairs with `safe-area-inset-*` so the panel respects the iOS
+     notch + Android nav bar. Without this the overlay's bottom edge floats
+     ABOVE the keyboard and shows the manhwa cover bleeding through. */
+  height: 100dvh;
+  padding-top: max(90px, env(safe-area-inset-top, 0));
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 0));
+  padding-left: 20px;
+  padding-right: 20px;
   overflow-y: auto;
 }
 
@@ -291,7 +299,25 @@
 
 @media (max-width: 640px) {
   .backdrop {
-    padding: 72px 12px 12px;
+    /* Solid bg on mobile — backdrop-filter is dropped on touch (per
+       globals.css), so the previous translucent rgba allowed the manhwa
+       cover to bleed through the panel area when the keyboard opened.
+       Solid #07050a fixes that completely. */
+    background: #07050a;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding-top: max(72px, env(safe-area-inset-top, 0));
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0));
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .panel {
+    /* Solid (not gradient with alpha) so nothing shows through. */
+    background: #1a0e06;
+    /* Constrain so the panel can't exceed the shrunken visual viewport
+       when the keyboard is up. */
+    max-height: calc(100dvh - 96px);
   }
 
   .input {

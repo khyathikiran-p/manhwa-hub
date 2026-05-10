@@ -101,6 +101,9 @@ export default function SearchOverlay({ open, onClose, defaultCountry = "KR" }) 
         >
           <motion.div
             className={styles.panel}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Search manhwa, manga, and manhua"
             onClick={(e) => e.stopPropagation()}
             initial={{ opacity: 0, y: -16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

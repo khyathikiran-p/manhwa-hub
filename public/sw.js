@@ -20,7 +20,7 @@
 // next visit. Bump after any deploy users should not see the cached
 // version of (e.g. mobile flicker fixes — a phone holding v1 in cache
 // would otherwise show the old broken UI for hours).
-const CACHE_VERSION = "mw-v3";
+const CACHE_VERSION = "mw-v4";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -85,9 +85,27 @@ self.addEventListener("fetch", (event) => {
   }
 });
 
+// /_next/image URLs aren't fingerprinted (same URL serves different bytes
+// when AniList rotates a cover). We cap their cache at 7 days so users
+// don't see permanently stale art.
+const IMAGE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(RUNTIME_CACHE);
-  const cached = await cache.match(request);
+  let cached = await cache.match(request);
+
+  // For optimized image responses, age out cached entries beyond 7 days
+  // so we don't serve covers that AniList may have updated.
+  if (cached && request.url.includes("/_next/image")) {
+    const dateHeader = cached.headers.get("date");
+    if (dateHeader) {
+      const ageMs = Date.now() - new Date(dateHeader).getTime();
+      if (ageMs > IMAGE_MAX_AGE_MS) {
+        await cache.delete(request);
+        cached = null;
+      }
+    }
+  }
 
   // Always trigger a network update in the background
   const networkFetch = fetch(request)

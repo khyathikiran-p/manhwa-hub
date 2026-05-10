@@ -86,6 +86,12 @@ const slideVariants = {
 // `direction` (1 forward / -1 backward) controls which side new content
 // flies in from — feels natural with the swipe gesture and the manual
 // prev/next buttons.
+//
+// Exit duration is intentionally shorter (220ms) than the background
+// cross-fade (1.4s in CSS). Without that, AnimatePresence kept the
+// OUTGOING slide's text mounted while the bg image had already swapped,
+// producing a visible "wrong text on right cover" frame on slow phones
+// (visible in the user's mobile-error PDF).
 const slideContentVariants = {
   enter: (dir) => ({
     opacity: 0,
@@ -96,15 +102,15 @@ const slideContentVariants = {
     x: 0,
     transition: {
       x: { type: "spring", stiffness: 320, damping: 32, mass: 0.7 },
-      opacity: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+      opacity: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
     },
   },
   exit: (dir) => ({
     opacity: 0,
     x: dir > 0 ? -48 : 48,
     transition: {
-      x: { type: "spring", stiffness: 280, damping: 30 },
-      opacity: { duration: 0.35, ease: "easeOut" },
+      duration: 0.22,
+      ease: "easeOut",
     },
   }),
 };
@@ -290,14 +296,20 @@ export default function HeroSection({ trending = [] }) {
           className={styles.bgWrap}
           style={{ y: bgY, scale: bgScale }}
         >
-          {trending.map((t, i) => (
+          {trending.map((t, i) => {
+            const bgSrc =
+              t.bannerImage ||
+              t.coverImage?.extraLarge ||
+              t.coverImage?.large ||
+              null;
+            return (
             <div
               key={t.id}
               className={`${styles.slide} ${i === current ? styles.active : ""}`}
             >
-              {(t.bannerImage || t.coverImage?.extraLarge) && (
+              {bgSrc ? (
                 <Image
-                  src={t.bannerImage || t.coverImage?.extraLarge}
+                  src={bgSrc}
                   alt=""
                   fill
                   sizes="(max-width: 1100px) 100vw, 1100px"
@@ -322,11 +334,23 @@ export default function HeroSection({ trending = [] }) {
                      a backdrop image at the rendered cropping. */
                   quality={60}
                 />
+              ) : (
+                /* No usable image from AniList — fill the slot with a
+                   themed gradient using the cover hint color so the user
+                   doesn't see a flat blue/teal panel (visible bug on
+                   page 5/6 of the user's mobile-error PDF). */
+                <div
+                  className={styles.slideFallback}
+                  style={{
+                    background: `linear-gradient(135deg, ${t.coverImage?.color || "#f59e0b"}, #1a0d04)`,
+                  }}
+                />
               )}
               <div className={styles.bgVignette} />
               <div className={styles.bgGradient} />
             </div>
-          ))}
+            );
+          })}
         </motion.div>
 
         {/* Live, content-aware flame wisp aura */}
@@ -501,6 +525,7 @@ export default function HeroSection({ trending = [] }) {
                       </Link>
                     </motion.div>
                     <p
+                      id={`hero-synopsis-${item?.id}`}
                       className={`${styles.synopsis} ${expanded ? styles.synopsisExpanded : ""}`}
                     >
                       {synopsis || "No synopsis available."}
@@ -526,6 +551,8 @@ export default function HeroSection({ trending = [] }) {
                     type="button"
                     className={styles.expandLink}
                     onClick={() => setExpanded((v) => !v)}
+                    aria-expanded={expanded}
+                    aria-controls={`hero-synopsis-${item?.id}`}
                   >
                     {expanded ? "Collapse" : "Expand to see more"}
                   </button>

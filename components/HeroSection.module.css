@@ -80,16 +80,16 @@
   position: relative;
   width: 100%;
   max-width: 1100px;
-  height: clamp(540px, 70vh, 720px);
+  /* `dvh` (dynamic viewport height) shrinks/grows with the iOS Safari
+     URL bar and Android keyboard. Without it the frame's `70vh` was
+     calculated against the browser's "large viewport" — squashing the
+     page when the address bar collapsed. */
+  height: clamp(540px, 70dvh, 720px);
   border-radius: 28px;
   overflow: hidden;
   background: #0a0805;
   isolation: isolate;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
-  /* Prevent the swipe-to-change-slide gesture from triggering vertical
-     bounce on iOS. Pairs with the `.hero` overscroll-behavior; both are
-     needed because the swipe event can bubble to the closest scrolling
-     ancestor at either layer. */
   overscroll-behavior: contain;
 }
 
@@ -217,6 +217,16 @@
   object-fit: cover;
   filter: brightness(1) contrast(1.06) saturate(1.15);
   animation: slowZoom 14s ease-out infinite alternate;
+}
+
+/* Themed gradient shown when AniList has no banner / extraLarge / large
+   image for a slide. Uses the cover-color hint so the panel visually
+   ties to the manhwa instead of being a flat blue rectangle. */
+.slideFallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* On mobile, cross-fading two slides while both are scaling 1→1.08 every
@@ -422,7 +432,28 @@
   align-items: end;
 }
 
+/* The "SELECTED MANHWA" panel sits over the bg slide image. Without an
+   isolated stacking context, on iOS Safari the bg image's compositor
+   layer could "bleed" through the panel during slide cross-fade — what
+   page 8 of the user's mobile-error PDF showed (Korean cover text
+   overlapping the synopsis). `isolation: isolate` creates a fresh
+   stacking context so children's z-index is contained to this card. */
 .selectedBox {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+  /* Solid backdrop so even if a layer below renders early it can't show
+     through. The blur is GPU-cheap on desktop and dropped on mobile by
+     globals.css (which strips backdrop-filter on coarse pointer). */
+  background: linear-gradient(
+    180deg,
+    rgba(8, 4, 1, 0.5) 0%,
+    rgba(8, 4, 1, 0.85) 100%
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 16px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -655,7 +686,11 @@
   }
 
   .frame {
-    height: clamp(620px, 92vh, 760px);
+    /* dvh on mobile so the iOS URL-bar collapse doesn't squash the
+       hero's grid-rows = auto / 1fr / auto layout (was visible as
+       the rating ring being pushed off-screen on short Android phones). */
+    height: min(78dvh, 760px);
+    min-height: 540px;
     border-radius: 22px;
   }
 

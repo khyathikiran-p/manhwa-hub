@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(tail -30 C:\\\\\\\\Users\\\\\\\\khyat\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\claude\\\\\\\\C--Users-khyat--gemini-antigravity-scratch-manhwa-hub--claude-worktrees-laughing-noyce-db8b10\\\\\\\\e843ed6c-1cdb-46c6-a82d-14f49033fe3b\\\\\\\\tasks\\\\\\\\bh51dseuw.output)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npx --yes vercel --prod --yes)",
+      "Bash(ls -la \"/c/Users/khyat/Downloads/\" 2>&1 | grep -iE \"\\(mw|logo|manhwa|whatsapp|\\\\.png|\\\\.jpg|\\\\.jpeg|\\\\.mp4|\\\\.webp\\)\" | head -20)",
+      "Bash(cp \"/c/Users/khyat/Downloads/WhatsApp Image 2026-05-09 at 5.01.13 PM \\(1\\).jpeg\" public/logo-mw.jpeg && ls -la public/logo-mw.jpeg)",
+      "Bash(where ffmpeg *)",
+      "Bash(where magick *)",
+      "Bash(powershell -Command \"Get-Command ffmpeg -ErrorAction SilentlyContinue\")",
+      "Bash(npm run *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(winget --version)",
+      "Bash(choco --version)",
+      "Bash(scoop --version)",
+      "Bash(winget install *)",
+      "Bash(ls \"/c/Users/khyat/AppData/Local/Microsoft/WinGet/Packages/\" 2>&1 | grep -i poppler ; ls \"/c/Program Files/\" 2>&1 | grep -i poppler)",
+      "Bash(export PATH=\"/c/Users/khyat/AppData/Local/Microsoft/WinGet/Packages/oschwartz10612.Poppler_Microsoft.Winget.Source_8wekyb3d8bbwe/poppler-25.07.0/Library/bin:$PATH\")",
+      "Bash(pdftoppm -v)",
+      "Bash(mkdir -p /tmp/pdfs)",
+      "Bash(pdftoppm -jpeg -r 90 -f 1 -l 8 \"/c/Users/khyat/Downloads/pcmw.pdf\" /tmp/pdfs/pc)",
+      "Bash(pdftoppm -jpeg -r 90 -f 1 -l 8 \"/c/Users/khyat/Downloads/mobilemw.pdf\" /tmp/pdfs/mb)",
+      "Read(//tmp/**)",
+      "Bash(cmd.exe //c echo %TEMP%)",
+      "Bash(mkdir -p \"/c/Users/khyat/AppData/Local/Temp/pdfimg\")",
+      "Bash(cp /tmp/pdfs/*.jpg \"/c/Users/khyat/AppData/Local/Temp/pdfimg/\")",
+      "Read(//c/Users/khyat/AppData/Local/Temp/**)",
+      "Bash(pdftoppm -jpeg -r 90 -f 9 -l 23 \"/c/Users/khyat/Downloads/mobilemw.pdf\" \"/c/Users/khyat/AppData/Local/Temp/pdfimg/mb\")",
+      "Bash(pdftoppm -jpeg -r 90 -f 9 -l 26 \"/c/Users/khyat/Downloads/pcmw.pdf\" \"/c/Users/khyat/AppData/Local/Temp/pdfimg/pc\")",
+      "Bash(rm -f \"/c/Users/khyat/AppData/Local/Temp/pdfimg/\"*.jpg)",
+      "Bash(pdftoppm -jpeg -r 80 -f 1 -l 4 \"/c/Users/khyat/Downloads/pcmw.pdf\" \"/c/Users/khyat/AppData/Local/Temp/pdfimg/pc\")",
+      "Bash(pdftoppm -jpeg -r 80 -f 1 -l 4 \"/c/Users/khyat/Downloads/mobilemw.pdf\" \"/c/Users/khyat/AppData/Local/Temp/pdfimg/mb\")",
+      "Bash(export PATH=\"/c/Users/khyat/AppData/Local/Microsoft/WinGet/Packages/oschwartz10612.Poppler_Microsoft.Winget.Source_8wekyb3d8bbwe/poppler-25.07.0/Library/bin:$PATH\" && rm -f \"/c/Users/khyat/AppData/Local/Temp/pdfimg/\"*.jpg && pdftoppm -jpeg -r 80 -f 1 -l 4 \"/c/Users/khyat/Downloads/pcmw.pdf\" \"/c/Users/khyat/AppData/Local/Temp/pdfimg/pc\" && pdftoppm -jpeg -r 80 -f 1 -l 4 \"/c/Users/khyat/Downloads/mobilemw.pdf\" \"/c/Users/khyat/AppData/Local/Temp/pdfimg/mb\")"
+    ]
+  }
+}
