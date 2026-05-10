@@ -92,11 +92,15 @@ export default function ManhwaCard({ manhwa, index = 0, eager = false }) {
               />
             )}
 
+            {/* Rating chip — UX feedback wanted EITHER stars OR percent,
+                not both. We use percent (`84% Rating`) which is more
+                precise and conveys the AniList scoring directly. The
+                color tint comes from getScoreClass (high/mid/low). */}
             {score && (
               <span
                 className={`${styles.scoreBadgeFloat} ${getScoreClass(score)}`}
               >
-                ⭐ {score}%
+                {score}% Rating
               </span>
             )}
 
@@ -117,15 +121,22 @@ export default function ManhwaCard({ manhwa, index = 0, eager = false }) {
           </div>
 
           <div className={styles.info}>
+            {/* Section 1 — Title (single, prominent) */}
             <h3 className={styles.title}>{title}</h3>
+
+            {/* Section 2 — Genres as pill badges. Hairline divider above
+                visually separates them from the title section. */}
             {genres.length > 0 && (
-              <div className={styles.genreRow}>
-                {genres.map((g) => (
-                  <span key={g} className={styles.genreChip}>
-                    {g}
-                  </span>
-                ))}
-              </div>
+              <>
+                <span className={styles.cardDivider} aria-hidden="true" />
+                <div className={styles.genreRow}>
+                  {genres.map((g) => (
+                    <span key={g} className={styles.genreChip}>
+                      {g}
+                    </span>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </Link>

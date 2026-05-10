@@ -35,19 +35,27 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--accent-secondary);
-  padding: 8px 18px;
+  padding: 10px 22px;
   border: 1px solid var(--border-accent);
   border-radius: var(--radius-full);
   transition: all var(--transition-fast);
 }
 
-.viewAll:hover {
-  background: rgba(245, 158, 11, 0.1);
+@media (hover: hover) {
+  .viewAll:hover {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+    transform: translateX(2px);
+  }
 }
 
 /* Genre Quick Nav */
 .genreNav {
-  padding: 0 24px 60px;
+  /* Add scroll-margin so the navbar's "Genres" anchor link doesn't land
+     with the section title hidden behind the fixed nav. */
+  scroll-margin-top: calc(var(--navbar-height) + 16px);
+  padding: 20px 24px 80px;
   max-width: 1440px;
   margin: 0 auto;
 }
@@ -72,7 +80,11 @@
   gap: 12px;
 }
 
+/* Each genre tile reads as a clickable card via a 1px border + bg.
+   Hover state adds an unmistakable lift + glow + arrow nudge so users
+   on a fine pointer immediately know it's interactive. */
 .genreCard {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,69 +95,85 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   color: var(--text-secondary);
-  transition: all var(--transition-base);
+  transition: transform var(--transition-base),
+    border-color var(--transition-base),
+    background-color var(--transition-base),
+    color var(--transition-base),
+    box-shadow var(--transition-base);
   text-align: center;
+  overflow: hidden;
 }
 
-.genreCard:hover {
-  border-color: var(--accent-primary);
-  color: var(--accent-secondary);
-  background: rgba(245, 158, 11, 0.05);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.1);
+/* Subtle gradient sheen revealed on hover — adds the "alive" feel
+   without being noisy on the default state. */
+.genreCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.18) 0%,
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .genreCard:hover {
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+    background: rgba(245, 158, 11, 0.07);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(245, 158, 11, 0.18),
+      0 0 0 1px rgba(245, 158, 11, 0.25);
+  }
+  .genreCard:hover::before {
+    opacity: 1;
+  }
+}
+
+.genreCard:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
 }
 
 .genreEmoji {
   margin-right: 8px;
   font-size: 1.1rem;
+  position: relative;
+  z-index: 1;
 }
 
-/* Stats Bar */
-.statsBar {
+/* "All Genres →" tail card — visually distinct from the chip cards so
+   it reads as a "see more" call-to-action, not just another filter. */
+.genreAllCard {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 48px;
-  padding: 40px 24px;
-  background: var(--bg-secondary);
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.stat {
-  text-align: center;
-}
-
-.statValue {
-  font-size: 2rem;
+  gap: 10px;
+  padding: 20px 16px;
+  font-size: 0.88rem;
   font-weight: 800;
+  letter-spacing: 0.04em;
   background: var(--accent-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #1a0d04;
+  border-radius: var(--radius-lg);
+  border: 1px solid transparent;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  text-align: center;
+  box-shadow: 0 6px 18px var(--accent-glow-soft);
 }
 
-.statLabel {
-  font-size: 0.78rem;
-  /* AAA contrast on the dark stats-bar background.
-     #c2bcad on #0e0e18 → contrast ratio ~10.2:1 (AAA passes at 7:1 for
-     small text). The earlier var(--text-tertiary) #6a6a88 was 3.79:1,
-     below even AA, which dragged the Lighthouse Accessibility score. */
-  color: #c2bcad;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-top: 4px;
+@media (hover: hover) {
+  .genreAllCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(245, 158, 11, 0.45);
+  }
 }
 
 @media (max-width: 640px) {
-  .statsBar {
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-
-  .statValue {
-    font-size: 1.4rem;
-  }
-
   .genreGrid {
     grid-template-columns: repeat(2, 1fr);
   }

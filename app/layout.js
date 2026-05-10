@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import AmbientStack from "@/components/AmbientStack";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import WebVitalsReporter from "@/components/WebVitalsReporter";
@@ -72,6 +73,7 @@ export default function RootLayout({ children }) {
           <Navbar />
         </Suspense>
         <main style={{ position: "relative", zIndex: 1 }}>{children}</main>
+        <Footer />
       </body>
     </html>
   );

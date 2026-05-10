@@ -446,14 +446,22 @@ export default function HeroSection({ trending = [] }) {
                 : {})}
               style={{ touchAction: enableParallax ? "pan-y" : "auto" }}
             >
-              {/* Top: Title block */}
+              {/* Top: Title block — the "Trending #N" pill, title, and
+                  CTA share a left-side accent rail so the eye groups them
+                  as one unit anchored to the banner edge. */}
               <div className={styles.titleBlock}>
+                <span className={styles.titleRail} aria-hidden="true" />
                 <motion.div
                   className={styles.titleSub}
                   variants={slideVariants}
                   transition={{ delay: 0.05 }}
                 >
-                  <span className={styles.subAccent}>Trending #{current + 1}</span>
+                  <span className={styles.trendingBadge}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                      <path d="M12 2 9 9l-7 1 5 5-1 7 6-3 6 3-1-7 5-5-7-1z" />
+                    </svg>
+                    Trending #{current + 1}
+                  </span>
                   {item?.format && <span className={styles.subDot}>•</span>}
                   {item?.format && <span>{item.format}</span>}
                 </motion.div>
@@ -472,9 +480,9 @@ export default function HeroSection({ trending = [] }) {
                     href={`/manhwa/${item?.id}`}
                     className={styles.readNow}
                     data-cursor="link"
-                    data-cursor-label="Open"
+                    data-cursor-label="View"
                   >
-                    Read Now
+                    View Details
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="9 18 15 12 9 6" />
                     </svg>
@@ -493,7 +501,9 @@ export default function HeroSection({ trending = [] }) {
                   transition={{ delay: 0.18 }}
                 >
                   <span className={styles.selectedLabel}>Selected Manhwa</span>
-                  <div className={styles.selectedRow}>
+
+                  {/* Section 1 — Title row (cover thumb + manhwa title) */}
+                  <div className={styles.selectedTitleRow}>
                     <motion.div
                       layoutId={`cover-${item?.id}`}
                       transition={{
@@ -517,23 +527,39 @@ export default function HeroSection({ trending = [] }) {
                             height={130}
                             sizes="88px"
                             quality={70}
-                            unoptimized={false}
                           />
                         ) : (
                           <span className={styles.coverFallback} />
                         )}
                       </Link>
                     </motion.div>
-                    <p
-                      id={`hero-synopsis-${item?.id}`}
-                      className={`${styles.synopsis} ${expanded ? styles.synopsisExpanded : ""}`}
-                    >
-                      {synopsis || "No synopsis available."}
-                    </p>
+                    <h3 className={styles.selectedTitle}>{title}</h3>
                   </div>
 
                   <div className={styles.divider} />
 
+                  {/* Section 2 — Synopsis (collapsible) */}
+                  <p
+                    id={`hero-synopsis-${item?.id}`}
+                    className={`${styles.synopsis} ${
+                      expanded ? styles.synopsisExpanded : ""
+                    }`}
+                  >
+                    {synopsis || "No synopsis available."}
+                  </p>
+                  <button
+                    type="button"
+                    className={styles.expandLink}
+                    onClick={() => setExpanded((v) => !v)}
+                    aria-expanded={expanded}
+                    aria-controls={`hero-synopsis-${item?.id}`}
+                  >
+                    {expanded ? "Collapse synopsis" : "Read full synopsis"}
+                  </button>
+
+                  <div className={styles.divider} />
+
+                  {/* Section 3 — Genre tags */}
                   <div className={styles.genreRow}>
                     {genres.map((g) => (
                       <Link
@@ -546,16 +572,6 @@ export default function HeroSection({ trending = [] }) {
                       </Link>
                     ))}
                   </div>
-
-                  <button
-                    type="button"
-                    className={styles.expandLink}
-                    onClick={() => setExpanded((v) => !v)}
-                    aria-expanded={expanded}
-                    aria-controls={`hero-synopsis-${item?.id}`}
-                  >
-                    {expanded ? "Collapse" : "Expand to see more"}
-                  </button>
                 </motion.div>
 
                 <motion.div

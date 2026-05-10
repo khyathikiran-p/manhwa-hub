@@ -8,7 +8,7 @@ import { useMagneticSpring } from "@/hooks/useInteractions";
 import SearchOverlay from "./SearchOverlay";
 import styles from "./Navbar.module.css";
 
-function MagneticTab({ tab, isActive, label }) {
+function MagneticTab({ link, isActive }) {
   const { ref, x, y } = useMagneticSpring({ pull: 0.4, radius: 80 });
   return (
     <motion.div
@@ -17,10 +17,11 @@ function MagneticTab({ tab, isActive, label }) {
       data-cursor="link"
     >
       <Link
-        href={tab.href}
+        href={link.href}
         className={`${styles.tab} ${isActive ? styles.tabActive : ""}`}
+        aria-current={isActive ? "page" : undefined}
       >
-        {tab.label}
+        {link.label}
         {isActive && (
           <motion.span
             className={styles.tabUnderline}
@@ -33,27 +34,37 @@ function MagneticTab({ tab, isActive, label }) {
   );
 }
 
-const TABS = [
-  { label: "Manhwa", code: "KR", href: "/" },
-  { label: "Manga", code: "JP", href: "/browse?country=JP" },
-  { label: "Manhua", code: "CN", href: "/browse?country=CN" },
+// Primary navigation — UX feedback wanted Home / Browse / Genres rather
+// than the country tabs (which now live inside the Browse filter sidebar
+// and the Search overlay's tabs).
+const NAV_LINKS = [
+  { label: "Home", href: "/", match: (p) => p === "/" },
+  {
+    label: "Browse",
+    href: "/browse",
+    match: (p) => p.startsWith("/browse"),
+  },
+  // The Genre Quick Nav section on the home page has id="genres" so this
+  // scrolls there when you're already on the home page; from any other
+  // route it routes to /#genres which Next handles natively.
+  {
+    label: "Genres",
+    href: "/#genres",
+    match: () => false, // never visually "active" — it's a jump link
+  },
 ];
-
-function activeCountry(pathname, searchParams) {
-  const country = searchParams?.get("country");
-  if (pathname === "/") return "KR";
-  if (pathname.startsWith("/browse")) return country || "KR";
-  return null;
-}
 
 export default function Navbar() {
   const pathname = usePathname();
+  // useSearchParams kept for the SearchOverlay default-country prop.
   const searchParams = useSearchParams();
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const activeCode = activeCountry(pathname, searchParams);
+  const activeCountry =
+    searchParams?.get("country") ||
+    (pathname.startsWith("/browse") ? "KR" : "KR");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -128,13 +139,13 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Tabs */}
+          {/* Primary navigation */}
           <div className={styles.tabs}>
-            {TABS.map((t) => (
+            {NAV_LINKS.map((link) => (
               <MagneticTab
-                key={t.code}
-                tab={t}
-                isActive={activeCode === t.code}
+                key={link.href}
+                link={link}
+                isActive={link.match(pathname)}
               />
             ))}
           </div>
@@ -198,14 +209,14 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
-              {TABS.map((t) => (
+              {NAV_LINKS.map((link) => (
                 <Link
-                  key={t.code}
-                  href={t.href}
+                  key={link.href}
+                  href={link.href}
                   className={styles.mobileLink}
                   onClick={() => setMobileOpen(false)}
                 >
-                  {t.label}
+                  {link.label}
                 </Link>
               ))}
               <button
@@ -226,7 +237,7 @@ export default function Navbar() {
       <SearchOverlay
         open={searchOpen}
         onClose={() => setSearchOpen(false)}
-        defaultCountry={activeCode || "KR"}
+        defaultCountry={activeCountry}
       />
     </>
   );

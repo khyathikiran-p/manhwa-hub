@@ -1,0 +1,127 @@
+.footer {
+  position: relative;
+  z-index: 1;
+  margin-top: 60px;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 4, 1, 0.4) 0%,
+    rgba(8, 4, 1, 0.92) 60%,
+    #08040a 100%
+  );
+  border-top: 1px solid rgba(245, 158, 11, 0.18);
+}
+
+.inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 56px 32px 32px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 48px;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.logoText {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.tagline {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: #c2bcad;
+  max-width: 420px;
+}
+
+.linksColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.linksHeading {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-secondary);
+  margin-bottom: 6px;
+}
+
+.link {
+  display: inline-block;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 4px 0;
+  transition: color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--accent-secondary);
+    transform: translateX(2px);
+  }
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.bottom {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 18px 32px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.copy {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #c2bcad;
+}
+
+.smallNote {
+  font-size: 0.74rem;
+  color: var(--text-tertiary);
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  .inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    padding: 40px 20px 24px;
+  }
+  .brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 18px 20px 28px;
+  }
+}

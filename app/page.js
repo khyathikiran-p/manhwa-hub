@@ -44,26 +44,6 @@ export default async function HomePage() {
       {/* Hero */}
       <HeroSection trending={trending} />
 
-      {/* Stats Bar */}
-      <div className={styles.statsBar}>
-        <div className={styles.stat}>
-          <div className={styles.statValue}>10K+</div>
-          <div className={styles.statLabel}>Manhwa Titles</div>
-        </div>
-        <div className={styles.stat}>
-          <div className={styles.statValue}>50+</div>
-          <div className={styles.statLabel}>Genres & Tags</div>
-        </div>
-        <div className={styles.stat}>
-          <div className={styles.statValue}>Live</div>
-          <div className={styles.statLabel}>API Data</div>
-        </div>
-        <div className={styles.stat}>
-          <div className={styles.statValue}>Free</div>
-          <div className={styles.statLabel}>Forever</div>
-        </div>
-      </div>
-
       {/* Popular This Season */}
       <section className={styles.featured}>
         <div className={styles.featuredHeader}>
@@ -77,8 +57,9 @@ export default async function HomePage() {
         <ManhwaGrid manhwas={popular} />
       </section>
 
-      {/* Genre Quick Nav */}
-      <section className={styles.genreNav}>
+      {/* Genre Quick Nav. Anchor `id="genres"` is targeted by the
+          navbar's "Genres" link on every route (including this page). */}
+      <section id="genres" className={styles.genreNav}>
         <h2 className={styles.genreNavTitle}>
           🎯 Browse by <span>Genre</span>
         </h2>
@@ -93,6 +74,12 @@ export default async function HomePage() {
               {label}
             </Link>
           ))}
+          {/* "All Genres" tail link — visually distinct from the chips
+              so it reads as a "see more" rather than another filter. */}
+          <Link href="/browse" className={styles.genreAllCard}>
+            <span>All Genres</span>
+            <span aria-hidden="true">→</span>
+          </Link>
         </div>
       </section>
     </div>
