@@ -126,21 +126,33 @@
 
 .scoreBadgeFloat {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  /* Wider padding so "84% Rating" reads as a clear chip rather than a
-     cramped percentage. */
-  padding: 5px 10px;
-  font-size: 0.7rem;
+  padding: 4px 9px;
+  font-size: 0.68rem;
   font-weight: 800;
   letter-spacing: 0.02em;
   border-radius: var(--radius-full);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+
+/* The trailing " Rating" word collides with the status badge on mobile
+   covers (which are only ~140 px wide). Hide it below 640 px so the
+   chip is just "84%" — still readable as a rating from context. */
+@media (max-width: 640px) {
+  .scoreBadgeFloat .scoreLabel {
+    display: none;
+  }
+  .scoreBadgeFloat {
+    padding: 4px 7px;
+    font-size: 0.66rem;
+  }
 }
 
 .scoreHigh {
@@ -163,17 +175,29 @@
 
 .statusBadge {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 8px;
+  left: 8px;
   z-index: 2;
   padding: 3px 8px;
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-radius: var(--radius-sm);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+
+/* On narrow phones the status word + rating chip collided. Tighten
+   both badges and shorten the Status text to a single dot variant so
+   the corners breathe. */
+@media (max-width: 640px) {
+  .statusBadge {
+    padding: 2px 7px;
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+  }
 }
 
 .statusOngoing {

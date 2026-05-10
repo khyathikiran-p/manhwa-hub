@@ -552,6 +552,16 @@ export default function HeroSection({ trending = [] }) {
                     </svg>
                     Trending #{current + 1}
                   </span>
+                  {/* Rating chip — moved here so it's always visible at
+                      the top of the hero on mobile, where the bottom
+                      RatingRing was getting clipped by the frame. The
+                      ring still renders on desktop. */}
+                  {score > 0 && (
+                    <span className={styles.ratingInlineChip}>
+                      <span className={styles.ratingInlineDot} aria-hidden="true" />
+                      {score}% Rating
+                    </span>
+                  )}
                   {item?.format && <span className={styles.subDot}>•</span>}
                   {item?.format && <span>{item.format}</span>}
                 </motion.div>

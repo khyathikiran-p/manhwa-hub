@@ -388,6 +388,34 @@
   box-shadow: 0 4px 14px var(--accent-glow-soft);
 }
 
+/* Inline rating chip in the hero title row. On mobile this is the
+   primary surface for "average rating" — the bottom RatingRing is
+   hidden there because it gets clipped by the orange frame on small
+   phones. Desktop keeps both for visual depth. */
+.ratingInlineChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  background: rgba(8, 4, 1, 0.7);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.ratingInlineDot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
 .title {
   font-size: clamp(1.8rem, 3.6vw, 3rem);
   line-height: 0.98;
@@ -811,9 +839,11 @@
   }
 
   .ratingBox {
-    flex-direction: row;
-    align-items: center;
-    align-self: flex-start;
+    /* Hidden on touch / narrow screens — the inline `.ratingInlineChip`
+       up in the title row is the rating surface there. The big circular
+       ring was getting clipped by the orange frame and the user reported
+       not being able to see it on touchscreen. */
+    display: none;
   }
 }
 

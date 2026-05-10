@@ -92,15 +92,16 @@ export default function ManhwaCard({ manhwa, index = 0, eager = false }) {
               />
             )}
 
-            {/* Rating chip — UX feedback wanted EITHER stars OR percent,
-                not both. We use percent (`84% Rating`) which is more
-                precise and conveys the AniList scoring directly. The
-                color tint comes from getScoreClass (high/mid/low). */}
+            {/* Rating chip — percent only (no star icon per UX review).
+                On mobile the trailing " Rating" word is hidden via CSS
+                because it collided with the status badge on narrow
+                covers. The number alone reads as a rating from context
+                (and getScoreClass colors it green/amber/red). */}
             {score && (
               <span
                 className={`${styles.scoreBadgeFloat} ${getScoreClass(score)}`}
               >
-                {score}% Rating
+                {score}%<span className={styles.scoreLabel}> Rating</span>
               </span>
             )}
 

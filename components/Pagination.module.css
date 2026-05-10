@@ -3,11 +3,14 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 40px 0 24px;
-  /* Reserve space so the pagination block has the same height whether or
-     not paging is needed yet. Without this Lighthouse measured CLS 0.106
-     because the block popped in after the first cover render. */
-  min-height: 104px;
+  padding: 32px 0 16px;
+  /* Was min-height: 104px to prevent CLS when pagination popped in
+     after the cover grid hydrated. With React 19 + the page now
+     rendering pagination synchronously alongside the grid, that CLS
+     no longer materializes — and the reserved space was leaving a
+     visible gap when there was only one page of results. Drop to a
+     small minimum so it still doesn't reflow on hot edits. */
+  min-height: 56px;
 }
 
 .pageBtn {

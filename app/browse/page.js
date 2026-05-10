@@ -199,11 +199,19 @@ function BrowseContent() {
             onClearStatus={() => handleStatusChange(null)}
           />
 
-          {/* Reserve viewport height so the page never collapses to an
-              empty band when Suspense / data load is slow on mobile.
-              The user's PDF showed pages 4 and 7 rendering as just the
-              navbar + ambient glow — preventing that. */}
-          <div style={{ minHeight: "60vh" }}>
+          {/* Reserve viewport height ONLY while we're waiting on data
+              or showing an error/empty state. When real cards are
+              rendered, the grid sizes itself naturally — earlier the
+              fixed 60vh produced a huge dead band on mobile (visible
+              in the user's PDF when only a few cards loaded above the
+              fold). */}
+          <div
+            style={
+              loading || error || manhwas.length === 0
+                ? { minHeight: "60vh" }
+                : undefined
+            }
+          >
             <ManhwaGrid
               manhwas={manhwas}
               loading={loading}
