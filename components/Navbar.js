@@ -74,6 +74,12 @@ export default function Navbar() {
         >
           Browse
         </MagneticLink>
+        <MagneticLink
+          href="/tutorials"
+          isActive={pathname.startsWith("/tutorials")}
+        >
+          Tutorials
+        </MagneticLink>
       </div>
 
       <form onSubmit={handleSearch} className={styles.searchWrapper}>
@@ -140,6 +146,13 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
             >
               Browse
+            </Link>
+            <Link
+              href="/tutorials"
+              className={styles.link}
+              onClick={() => setMobileOpen(false)}
+            >
+              Tutorials
             </Link>
             <form onSubmit={handleSearch} className={styles.mobileSearchWrapper}>
               <span className={styles.searchIcon}>🔍</span>
